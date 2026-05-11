@@ -5,11 +5,11 @@ import { playlists } from "@/lib/mock-data";
 
 const nav = [
   { to: "/app", label: "Home", icon: Home, exact: true },
-  { to: "/app/discover", label: "Discover", icon: Compass },
-  { to: "/app/library", label: "Library", icon: Library },
-  { to: "/app/favorites", label: "Favorites", icon: Heart },
-  { to: "/app/recent", label: "Recently Played", icon: Clock },
-  { to: "/app/settings", label: "Settings", icon: Settings },
+  { to: "/app/discover", label: "Discover", icon: Compass, exact: false },
+  { to: "/app/library", label: "Library", icon: Library, exact: false },
+  { to: "/app/favorites", label: "Favorites", icon: Heart, exact: false },
+  { to: "/app/recent", label: "Recently Played", icon: Clock, exact: false },
+  { to: "/app/settings", label: "Settings", icon: Settings, exact: false },
 ] as const;
 
 export function Sidebar() {
