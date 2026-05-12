@@ -8,7 +8,7 @@ export function TopBar() {
         <div className="relative flex-1 max-w-xl">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
-            placeholder="Search reels, artists, moods..."
+            placeholder="Search your saved reels, creators, moods..."
             className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:bg-white/10 transition"
           />
         </div>

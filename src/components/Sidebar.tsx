@@ -1,14 +1,14 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Compass, Library, ListMusic, Heart, Clock, Settings, Plus } from "lucide-react";
+import { Home, Instagram, Folder, ListMusic, Heart, Clock, Settings, Plus } from "lucide-react";
 import logo from "@/assets/reelo-logo.png";
 import { playlists } from "@/lib/mock-data";
 
 const nav = [
   { to: "/app", label: "Home", icon: Home, exact: true },
-  { to: "/app/discover", label: "Discover", icon: Compass, exact: false },
-  { to: "/app/library", label: "Library", icon: Library, exact: false },
+  { to: "/app/discover", label: "Save a reel", icon: Instagram, exact: false },
+  { to: "/app/library", label: "My scrapbook", icon: Folder, exact: false },
   { to: "/app/favorites", label: "Favorites", icon: Heart, exact: false },
-  { to: "/app/recent", label: "Recently Played", icon: Clock, exact: false },
+  { to: "/app/recent", label: "Listening history", icon: Clock, exact: false },
   { to: "/app/settings", label: "Settings", icon: Settings, exact: false },
 ] as const;
 
@@ -44,7 +44,7 @@ export function Sidebar() {
 
       <div className="glass rounded-2xl p-3 flex-1 overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">Playlists</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">Mood folders</span>
           <button className="p-1 rounded-md hover:bg-white/10 text-muted-foreground hover:text-primary transition">
             <Plus className="w-4 h-4" />
           </button>
