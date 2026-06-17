@@ -1,42 +1,39 @@
-import cover1 from "@/assets/cover-1.jpg";
-import cover2 from "@/assets/cover-2.jpg";
-import cover3 from "@/assets/cover-3.jpg";
-import cover4 from "@/assets/cover-4.jpg";
-import cover5 from "@/assets/cover-5.jpg";
-import cover6 from "@/assets/cover-6.jpg";
-import artist1 from "@/assets/artist-1.jpg";
-import artist2 from "@/assets/artist-2.jpg";
+import { artistUrls, coverUrls, demoAudioUrl } from "@/lib/image-assets";
 
 export type Track = {
   id: string;
   title: string;
   artist: string;
   cover: string;
+  audioUrl?: string;
+  folderId?: string;
+  instagramUrl?: string;
+  savedAt?: number;
   duration: string;
   mood?: string;
 };
 
-export const covers = [cover1, cover2, cover3, cover4, cover5, cover6];
-export const artistImages = [artist1, artist2];
+export const covers = coverUrls;
+export const artistImages = artistUrls;
 
 export const tracks: Track[] = [
-  { id: "1", title: "Midnight Velvet", artist: "Aria Wren", cover: cover1, duration: "2:14", mood: "Late Night" },
-  { id: "2", title: "Echoes of You", artist: "Liam Sage", cover: cover2, duration: "1:48", mood: "Heartbreak" },
-  { id: "3", title: "Moonlit Whispers", artist: "Nova Rae", cover: cover3, duration: "2:31", mood: "Dreamy" },
-  { id: "4", title: "Petals & Promises", artist: "Indie Bloom", cover: cover4, duration: "1:59", mood: "Romance" },
-  { id: "5", title: "Rewind '99", artist: "Casey Lo", cover: cover5, duration: "2:08", mood: "Nostalgia" },
-  { id: "6", title: "Stage Lights", artist: "Kai Monroe", cover: cover6, duration: "2:22", mood: "Confidence" },
-  { id: "7", title: "Soft Static", artist: "Aria Wren", cover: cover2, duration: "1:36", mood: "Lo-fi" },
-  { id: "8", title: "Glass Hearts", artist: "Nova Rae", cover: cover4, duration: "2:04", mood: "Heartbreak" },
+  { id: "1", title: "Midnight Velvet", artist: "Aria Wren", cover: coverUrls[0], audioUrl: demoAudioUrl, duration: "2:14", mood: "Late Night", savedAt: Date.now() - 1000 * 60 * 60 * 7 },
+  { id: "2", title: "Echoes of You", artist: "Liam Sage", cover: coverUrls[1], audioUrl: demoAudioUrl, duration: "1:48", mood: "Heartbreak", savedAt: Date.now() - 1000 * 60 * 60 * 22 },
+  { id: "3", title: "Moonlit Whispers", artist: "Nova Rae", cover: coverUrls[2], audioUrl: demoAudioUrl, duration: "2:31", mood: "Dreamy", savedAt: Date.now() - 1000 * 60 * 60 * 30 },
+  { id: "4", title: "Petals & Promises", artist: "Indie Bloom", cover: coverUrls[3], audioUrl: demoAudioUrl, duration: "1:59", mood: "Romance", savedAt: Date.now() - 1000 * 60 * 60 * 48 },
+  { id: "5", title: "Rewind '99", artist: "Casey Lo", cover: coverUrls[4], audioUrl: demoAudioUrl, duration: "2:08", mood: "Nostalgia", savedAt: Date.now() - 1000 * 60 * 60 * 60 },
+  { id: "6", title: "Stage Lights", artist: "Kai Monroe", cover: coverUrls[5], audioUrl: demoAudioUrl, duration: "2:22", mood: "Confidence", savedAt: Date.now() - 1000 * 60 * 60 * 80 },
+  { id: "7", title: "Soft Static", artist: "Aria Wren", cover: coverUrls[1], audioUrl: demoAudioUrl, duration: "1:36", mood: "Lo-fi", savedAt: Date.now() - 1000 * 60 * 60 * 90 },
+  { id: "8", title: "Glass Hearts", artist: "Nova Rae", cover: coverUrls[3], audioUrl: demoAudioUrl, duration: "2:04", mood: "Heartbreak", savedAt: Date.now() - 1000 * 60 * 60 * 110 },
 ];
 
 export const playlists = [
-  { id: "p1", title: "Late Night Singing", desc: "Reels for 2 a.m. feelings", cover: cover1, count: 24 },
-  { id: "p2", title: "Heartbreak Hits", desc: "Cry, then repeat", cover: cover4, count: 18 },
-  { id: "p3", title: "Indie Voices", desc: "Hidden gems, raw covers", cover: cover6, count: 32 },
-  { id: "p4", title: "Dreamy Covers", desc: "Float-away vibes", cover: cover3, count: 21 },
-  { id: "p5", title: "Throwback Reels", desc: "2010s nostalgia", cover: cover5, count: 14 },
-  { id: "p6", title: "Soundwave Sessions", desc: "Acoustic & raw", cover: cover2, count: 27 },
+  { id: "p1", title: "Late Night Singing", desc: "Reels for 2 a.m. feelings", cover: coverUrls[0], count: 24 },
+  { id: "p2", title: "Heartbreak Beats", desc: "Cry, then repeat", cover: coverUrls[3], count: 18 },
+  { id: "p3", title: "Indie Voices", desc: "Hidden gems, raw covers", cover: coverUrls[5], count: 32 },
+  { id: "p4", title: "Dreamy Covers", desc: "Float-away vibes", cover: coverUrls[2], count: 21 },
+  { id: "p5", title: "Throwback Reels", desc: "2010s nostalgia", cover: coverUrls[4], count: 14 },
+  { id: "p6", title: "Soundwave Sessions", desc: "Acoustic & raw", cover: coverUrls[1], count: 27 },
 ];
 
 export const moods = [
@@ -51,8 +48,8 @@ export const moods = [
 ];
 
 export const artists = [
-  { name: "Aria Wren", image: artist1, followers: "2.1M" },
-  { name: "Liam Sage", image: artist2, followers: "1.4M" },
-  { name: "Nova Rae", image: artist1, followers: "892K" },
-  { name: "Kai Monroe", image: artist2, followers: "1.7M" },
+  { name: "Aria Wren", image: artistUrls[0], followers: "2.1M" },
+  { name: "Liam Sage", image: artistUrls[1], followers: "1.4M" },
+  { name: "Nova Rae", image: artistUrls[0], followers: "892K" },
+  { name: "Kai Monroe", image: artistUrls[1], followers: "1.7M" },
 ];

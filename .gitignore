@@ -16,6 +16,10 @@ dist-ssr
 .nitro
 *.local
 
+# Local dev: imported reel audio (yt-dlp output)
+public/imports/*
+!public/imports/.gitkeep
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

@@ -1,14 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { playlists, tracks } from "@/lib/mock-data";
+import { playlists } from "@/lib/mock-data";
 import { Play, Shuffle, Heart, MoreHorizontal, GripVertical, Clock } from "lucide-react";
 import { usePlayer } from "@/lib/player-store";
+import { useReels } from "@/lib/reels-store";
 
 export const Route = createFileRoute("/app/playlist/$id")({ component: PlaylistPage });
 
 function PlaylistPage() {
   const { id } = Route.useParams();
   const playlist = playlists.find((p) => p.id === id) ?? playlists[0];
-  const list = tracks;
+  const { reels } = useReels();
+  const list = reels.filter((r) => r.folderId === id);
   const p = usePlayer();
 
   return (
@@ -22,13 +24,17 @@ function PlaylistPage() {
             <span className="text-xs uppercase tracking-widest text-muted-foreground">Playlist</span>
             <h1 className="font-display text-4xl md:text-6xl font-bold mt-2 leading-none">{playlist.title}</h1>
             <p className="text-muted-foreground mt-3">{playlist.desc}</p>
-            <div className="text-xs text-muted-foreground mt-2">{playlist.count} reels · ~38 min</div>
+            <div className="text-xs text-muted-foreground mt-2">{list.length} reels</div>
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
-        <button onClick={() => p.play(list[0], list)} className="w-14 h-14 rounded-full gradient-brand grid place-items-center text-white shadow-[0_15px_40px_oklch(0.72_0.3_350/0.5)] hover:scale-105 transition">
+        <button
+          onClick={() => list[0] && p.play(list[0], list)}
+          disabled={!list.length}
+          className="w-14 h-14 rounded-full gradient-brand grid place-items-center text-white shadow-[0_15px_40px_oklch(0.72_0.3_350/0.5)] hover:scale-105 transition disabled:opacity-40 disabled:hover:scale-100"
+        >
           <Play className="w-6 h-6 ml-0.5" />
         </button>
         <button onClick={p.toggleShuffle} className={`p-3 rounded-full glass hover:bg-white/10 ${p.shuffle ? "text-primary" : ""}`}><Shuffle className="w-5 h-5" /></button>
@@ -40,7 +46,11 @@ function PlaylistPage() {
         <div className="grid grid-cols-[24px_40px_1fr_1fr_auto] gap-4 px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground border-b border-white/5">
           <span>#</span><span></span><span>Title</span><span className="hidden md:block">Mood</span><Clock className="w-4 h-4" />
         </div>
-        {list.map((t, i) => {
+        {list.length === 0 ? (
+          <div className="p-6 text-sm text-muted-foreground">
+            No reels saved in this folder yet. Go to <Link to="/app/save" className="text-primary hover:underline">Save a reel</Link> and pick “{playlist.title}”.
+          </div>
+        ) : list.map((t, i) => {
           const active = p.current?.id === t.id;
           return (
             <div key={t.id} className={`grid grid-cols-[24px_40px_1fr_1fr_auto] gap-4 px-4 py-2.5 items-center group cursor-pointer transition ${active ? "bg-primary/10" : "hover:bg-white/5"}`} onClick={() => p.play(t, list)}>

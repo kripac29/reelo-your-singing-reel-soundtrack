@@ -1,12 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Bookmark, ListMusic, Sparkles, Headphones, Play, ArrowRight, Chrome, Heart, Wand2 } from "lucide-react";
-import logo from "@/assets/reelo-logo.png";
-import cover1 from "@/assets/cover-1.jpg";
-import cover2 from "@/assets/cover-2.jpg";
-import cover3 from "@/assets/cover-3.jpg";
-import artist1 from "@/assets/artist-1.jpg";
-import artist2 from "@/assets/artist-2.jpg";
+import { artistUrls, coverUrls, logoDataUri } from "@/lib/image-assets";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,7 +22,7 @@ function Landing() {
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/40 border-b border-white/5">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Reelo" className="w-9 h-9 rounded-lg" />
+            <img src={logoDataUri} alt="Reelo" className="w-9 h-9 rounded-lg" />
             <span className="font-display font-bold text-xl text-gradient">Reelo</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
@@ -66,9 +61,9 @@ function Landing() {
             </div>
             <div className="mt-10 flex items-center gap-6 text-xs text-muted-foreground">
               <div className="flex -space-x-2">
-                <img src={artist1} className="w-8 h-8 rounded-full border-2 border-background object-cover" alt="" />
-                <img src={artist2} className="w-8 h-8 rounded-full border-2 border-background object-cover" alt="" />
-                <img src={artist1} className="w-8 h-8 rounded-full border-2 border-background object-cover" alt="" />
+                <img src={artistUrls[0]} className="w-8 h-8 rounded-full border-2 border-background object-cover" alt="" />
+                <img src={artistUrls[1]} className="w-8 h-8 rounded-full border-2 border-background object-cover" alt="" />
+                <img src={artistUrls[0]} className="w-8 h-8 rounded-full border-2 border-background object-cover" alt="" />
               </div>
               <span>Loved by <strong className="text-foreground">12,400+</strong> reel listeners</span>
             </div>
@@ -85,7 +80,7 @@ function Landing() {
           <div className="absolute -inset-10 bg-[radial-gradient(circle,oklch(0.72_0.3_350/0.35),transparent_60%)] blur-3xl" />
           <div className="relative glass-strong rounded-3xl p-5 shadow-[0_30px_80px_-20px_oklch(0_0_0/0.6)] float-slow">
             <div className="flex items-center gap-4">
-              <img src={cover1} className="w-28 h-28 rounded-2xl object-cover" alt="" />
+              <img src={coverUrls[0]} className="w-28 h-28 rounded-2xl object-cover" alt="" />
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-muted-foreground">NOW PLAYING</div>
                 <div className="font-display text-xl font-bold mt-1 truncate">Midnight Velvet</div>
@@ -97,7 +92,7 @@ function Landing() {
               </div>
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3">
-              {[cover2, cover3, cover1].map((c, i) => (
+              {[coverUrls[1], coverUrls[2], coverUrls[0]].map((c, i) => (
                 <div key={i} className="rounded-xl overflow-hidden aspect-square relative">
                   <img src={c} alt="" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent grid place-items-end p-2">
@@ -155,7 +150,7 @@ function Landing() {
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {[cover1, cover2, cover3, cover1].map((c, i) => (
+              {[coverUrls[0], coverUrls[1], coverUrls[2], coverUrls[0]].map((c, i) => (
                 <div key={i} className={`rounded-2xl overflow-hidden aspect-square ${i % 2 ? "translate-y-6" : ""}`}>
                   <img src={c} alt="" className="w-full h-full object-cover" />
                 </div>
@@ -190,7 +185,7 @@ function Landing() {
       <footer className="border-t border-white/5 mt-10">
         <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="" className="w-6 h-6 rounded" />
+            <img src={logoDataUri} alt="" className="w-6 h-6 rounded" />
             <span>© 2026 Reelo. Made for singers and listeners.</span>
           </div>
           <div className="flex gap-6">

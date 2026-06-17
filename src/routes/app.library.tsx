@@ -1,15 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { playlists, tracks } from "@/lib/mock-data";
+import { playlists } from "@/lib/mock-data";
+import { useReels } from "@/lib/reels-store";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import { MusicCard } from "@/components/MusicCard";
 
 export const Route = createFileRoute("/app/library")({ component: Library });
 
 function Library() {
+  const { reels } = useReels();
   return (
     <div className="space-y-10">
       <header>
-        <h1 className="font-display text-3xl md:text-4xl font-bold">Your Library</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-bold">My scrapbook</h1>
         <p className="text-muted-foreground mt-1">Everything you've saved, in one calm place.</p>
       </header>
 
@@ -22,14 +24,20 @@ function Library() {
       <section>
         <h2 className="font-display text-xl font-bold mb-4">Your Playlists</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
-          {playlists.map((p) => <PlaylistCard key={p.id} {...p} />)}
+          {playlists.map((p) => (
+            <PlaylistCard
+              key={p.id}
+              {...p}
+              count={reels.filter((r) => r.folderId === p.id).length}
+            />
+          ))}
         </div>
       </section>
 
       <section>
         <h2 className="font-display text-xl font-bold mb-4">Saved Reels</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
-          {tracks.map((t) => <MusicCard key={t.id} track={t} queue={tracks} />)}
+          {reels.map((t) => <MusicCard key={t.id} track={t} queue={reels} />)}
         </div>
       </section>
     </div>

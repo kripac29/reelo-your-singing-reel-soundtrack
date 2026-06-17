@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { tracks, playlists, moods, artists } from "@/lib/mock-data";
 import { MusicCard } from "@/components/MusicCard";
 import { PlaylistCard } from "@/components/PlaylistCard";
+import { Link } from "@tanstack/react-router";
+import { Bookmark, FolderHeart, History, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/app/")({
   component: Home,
@@ -15,8 +17,51 @@ function Home() {
   return (
     <div className="space-y-12">
       <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-display text-3xl md:text-4xl font-bold">{greet}</h1>
-        <p className="text-muted-foreground mt-1">Pick up where you left off — or wander somewhere new.</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="font-display text-3xl md:text-4xl font-bold">{greet}</h1>
+            <p className="text-muted-foreground mt-1">Your saved singing reels — organized like a calm music scrapbook.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/app/discover"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full gradient-brand text-white text-sm font-semibold shadow-[0_15px_40px_-10px_oklch(0.72_0.3_350/0.6)]"
+            >
+              <Plus className="w-4 h-4" /> Import a reel
+            </Link>
+            <Link
+              to="/app/library"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-white/10 hover:border-primary/40 transition text-sm"
+            >
+              <FolderHeart className="w-4 h-4" /> Your folders
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 grid sm:grid-cols-3 gap-3">
+          <Link to="/app/recent" className="glass rounded-2xl p-4 hover:bg-white/5 transition group">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+              <History className="w-4 h-4" /> Continue listening
+            </div>
+            <div className="mt-2 font-display text-lg font-semibold">Pick up where you stopped</div>
+            <div className="text-sm text-muted-foreground mt-0.5">Your last played reels, in order.</div>
+          </Link>
+          <Link to="/app/favorites" className="glass rounded-2xl p-4 hover:bg-white/5 transition group">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+              <Bookmark className="w-4 h-4" /> Bookmarks
+            </div>
+            <div className="mt-2 font-display text-lg font-semibold">Creators & reels you saved</div>
+            <div className="text-sm text-muted-foreground mt-0.5">Your quick-grab favorites.</div>
+          </Link>
+          <Link to="/app/library" className="glass rounded-2xl p-4 hover:bg-white/5 transition group">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+              <FolderHeart className="w-4 h-4" /> Mood folders
+            </div>
+            <div className="mt-2 font-display text-lg font-semibold">Your vibe boards</div>
+            <div className="text-sm text-muted-foreground mt-0.5">Late night, heartbreak, dreamy…</div>
+          </Link>
+        </div>
+
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {tracks.slice(0, 8).map((t) => (
             <button key={t.id} className="flex items-center gap-3 glass rounded-xl p-2 pr-4 group hover:bg-white/5 transition">
@@ -30,11 +75,11 @@ function Home() {
         </div>
       </motion.section>
 
-      <Section title="Trending Covers" subtitle="What everyone's saving this week">
+      <Section title="Recently saved reels" subtitle="The ones you keep coming back to">
         <Grid>{tracks.slice(0, 6).map((t) => <MusicCard key={t.id} track={t} queue={tracks} />)}</Grid>
       </Section>
 
-      <Section title="Mood Playlists" subtitle="One tap, instant vibe">
+      <Section title="Mood folders" subtitle="Save reels into vibe boards">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {moods.map((m) => (
             <motion.button key={m.name} whileHover={{ y: -3 }} className={`relative aspect-[4/3] rounded-2xl overflow-hidden p-4 text-left bg-gradient-to-br ${m.gradient}`}>
@@ -45,7 +90,7 @@ function Home() {
         </div>
       </Section>
 
-      <Section title="Favorite Artists" subtitle="Singers you keep coming back to">
+      <Section title="Bookmarked creators" subtitle="Singers you save again and again">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {artists.map((a) => (
             <div key={a.name} className="glass rounded-2xl p-5 text-center group">
@@ -59,7 +104,7 @@ function Home() {
         </div>
       </Section>
 
-      <Section title="Made for You" subtitle="Curated from your taste">
+      <Section title="Your folders" subtitle="Collections that feel like Pinterest boards">
         <Grid>{playlists.map((p) => <PlaylistCard key={p.id} {...p} />)}</Grid>
       </Section>
     </div>

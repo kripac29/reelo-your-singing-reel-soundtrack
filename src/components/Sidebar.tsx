@@ -1,14 +1,14 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Compass, Library, ListMusic, Heart, Clock, Settings, Plus } from "lucide-react";
-import logo from "@/assets/reelo-logo.png";
+import { Home, ArrowDownToLine, Library, Heart, Clock, Settings, Plus } from "lucide-react";
+import { logoDataUri } from "@/lib/image-assets";
 import { playlists } from "@/lib/mock-data";
 
 const nav = [
   { to: "/app", label: "Home", icon: Home, exact: true },
-  { to: "/app/discover", label: "Discover", icon: Compass, exact: false },
-  { to: "/app/library", label: "Library", icon: Library, exact: false },
+  { to: "/app/save", label: "Save a reel", icon: ArrowDownToLine, exact: false },
+  { to: "/app/library", label: "My scrapbook", icon: Library, exact: false },
   { to: "/app/favorites", label: "Favorites", icon: Heart, exact: false },
-  { to: "/app/recent", label: "Recently Played", icon: Clock, exact: false },
+  { to: "/app/recent", label: "Listening history", icon: Clock, exact: false },
   { to: "/app/settings", label: "Settings", icon: Settings, exact: false },
 ] as const;
 
@@ -17,7 +17,7 @@ export function Sidebar() {
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 p-4 gap-3">
       <Link to="/" className="flex items-center gap-2 px-2 py-3">
-        <img src={logo} alt="Reelo" className="w-9 h-9 rounded-lg glow" />
+        <img src={logoDataUri} alt="Reelo" className="w-9 h-9 rounded-lg glow" />
         <span className="font-display text-xl font-bold text-gradient">Reelo</span>
       </Link>
 
@@ -73,7 +73,7 @@ export function Sidebar() {
           <div className="text-sm font-medium truncate">Reelo User</div>
           <div className="text-xs text-muted-foreground truncate">Free tier</div>
         </div>
-        <ListMusic className="w-4 h-4 text-muted-foreground" />
+        <Library className="w-4 h-4 text-muted-foreground" />
       </Link>
     </aside>
   );
