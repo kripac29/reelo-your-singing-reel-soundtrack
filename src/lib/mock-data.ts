@@ -3,7 +3,7 @@ import { artistUrls, coverUrls, demoAudioUrl } from "@/lib/image-assets";
 export type Track = {
   id: string;
   title: string;
-  artist: string;
+  artist: string; // creator handle
   cover: string;
   audioUrl?: string;
   folderId?: string;
@@ -11,6 +11,8 @@ export type Track = {
   savedAt?: number;
   duration: string;
   mood?: string;
+  savedAt?: string; // human label e.g. "2 days ago"
+  sourceUrl?: string; // original instagram reel link
 };
 
 export const covers = coverUrls;
@@ -47,6 +49,7 @@ export const moods = [
   { name: "Acoustic", gradient: "from-emerald-500 to-teal-600" },
 ];
 
+// Creators the user has bookmarked (from Instagram)
 export const artists = [
   { name: "Aria Wren", image: artistUrls[0], followers: "2.1M" },
   { name: "Liam Sage", image: artistUrls[1], followers: "1.4M" },

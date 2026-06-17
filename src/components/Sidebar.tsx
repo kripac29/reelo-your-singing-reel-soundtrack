@@ -44,7 +44,7 @@ export function Sidebar() {
 
       <div className="glass rounded-2xl p-3 flex-1 overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">Playlists</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">Mood folders</span>
           <button className="p-1 rounded-md hover:bg-white/10 text-muted-foreground hover:text-primary transition">
             <Plus className="w-4 h-4" />
           </button>
