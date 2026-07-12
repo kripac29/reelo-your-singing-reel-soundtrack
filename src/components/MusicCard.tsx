@@ -1,11 +1,14 @@
 import { Play } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePlayer } from "@/lib/player-store";
+import { getTrackCover } from "@/lib/reel-utils";
+import { ReelCover } from "@/components/ReelCover";
 import type { Track } from "@/lib/mock-data";
 
 export function MusicCard({ track, queue }: { track: Track; queue?: Track[] }) {
   const p = usePlayer();
   const isCurrent = p.current?.id === track.id;
+
   return (
     <motion.button
       whileHover={{ y: -4 }}
@@ -13,7 +16,7 @@ export function MusicCard({ track, queue }: { track: Track; queue?: Track[] }) {
       className="group relative text-left glass rounded-2xl p-3 transition hover:shadow-[0_20px_60px_-20px_oklch(0.72_0.3_350/0.4)]"
     >
       <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
-        <img src={track.cover} alt={track.title} loading="lazy" className="w-full h-full object-cover transition group-hover:scale-110 duration-700" />
+        <ReelCover src={getTrackCover(track)} alt={track.title} className="h-full w-full" fallbackLabel="Reel cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
         <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full gradient-brand grid place-items-center text-white opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition shadow-[0_8px_30px_oklch(0.72_0.3_350/0.6)]">
           <Play className="w-4 h-4 ml-0.5" />

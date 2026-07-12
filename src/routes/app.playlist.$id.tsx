@@ -1,28 +1,34 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { playlists, tracks } from "@/lib/mock-data";
+import { playlists } from "@/lib/mock-data";
+import useSavedReels from "@/lib/saved-store";
 import { Play, Shuffle, Heart, MoreHorizontal, GripVertical, Clock } from "lucide-react";
 import { usePlayer } from "@/lib/player-store";
+import { getTrackCover } from "@/lib/reel-utils";
+import { ReelCover } from "@/components/ReelCover";
 
 export const Route = createFileRoute("/app/playlist/$id")({ component: PlaylistPage });
 
 function PlaylistPage() {
   const { id } = Route.useParams();
   const playlist = playlists.find((p) => p.id === id) ?? playlists[0];
-  const list = tracks;
+  const { saved } = useSavedReels();
+  const list = saved.filter((t) => t.folderId === id);
+  const count = list.length;
   const p = usePlayer();
+  const playlistCover = list.length > 0 ? getTrackCover(list[0]) : playlist.cover;
 
   return (
     <div className="space-y-8">
       <div className="relative -mx-4 lg:-mx-8 -mt-6 px-4 lg:px-8 pt-10 pb-8 overflow-hidden">
-        <img src={playlist.cover} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-2xl scale-110" alt="" />
+        <ReelCover src={playlistCover} alt={playlist.title} className="absolute inset-0 w-full h-full" fallbackLabel="Playlist cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
         <div className="relative flex flex-col md:flex-row gap-6 items-end">
-          <img src={playlist.cover} alt={playlist.title} className="w-44 h-44 md:w-56 md:h-56 rounded-2xl object-cover shadow-[0_30px_80px_-20px_oklch(0_0_0/0.7)]" />
+          <ReelCover src={playlistCover} alt={playlist.title} className="w-44 h-44 md:w-56 md:h-56 rounded-2xl shadow-[0_30px_80px_-20px_oklch(0_0_0/0.7)]" fallbackLabel="Playlist cover" />
           <div className="min-w-0">
             <span className="text-xs uppercase tracking-widest text-muted-foreground">Playlist</span>
             <h1 className="font-display text-4xl md:text-6xl font-bold mt-2 leading-none">{playlist.title}</h1>
             <p className="text-muted-foreground mt-3">{playlist.desc}</p>
-            <div className="text-xs text-muted-foreground mt-2">{playlist.count} reels · ~38 min</div>
+            <div className="text-xs text-muted-foreground mt-2">{count} reels · ~38 min</div>
           </div>
         </div>
       </div>
@@ -48,7 +54,7 @@ function PlaylistPage() {
                 <span className="group-hover:hidden">{i + 1}</span>
                 <Play className="w-3.5 h-3.5 hidden group-hover:block text-primary" />
               </div>
-              <img src={t.cover} alt="" className="w-9 h-9 rounded-md object-cover" loading="lazy" />
+              <ReelCover src={getTrackCover(t)} alt={t.title} className="w-9 h-9 rounded-md" fallbackLabel="Reel" />
               <div className="min-w-0">
                 <div className={`text-sm truncate ${active ? "text-primary" : ""}`}>{t.title}</div>
                 <div className="text-xs text-muted-foreground truncate">{t.artist}</div>

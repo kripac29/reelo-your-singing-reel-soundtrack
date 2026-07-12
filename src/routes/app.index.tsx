@@ -1,20 +1,37 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { tracks, playlists, moods, artists } from "@/lib/mock-data";
+import { playlists, moods } from "@/lib/mock-data";
 import { MusicCard } from "@/components/MusicCard";
 import { PlaylistCard } from "@/components/PlaylistCard";
+import { CreatorAvatar } from "@/components/CreatorAvatar";
+import { ReelCover } from "@/components/ReelCover";
+import useSavedReels from "@/lib/saved-store";
 import { Instagram, Plus, Bookmark, Clock, Sparkles } from "lucide-react";
+import { getTrackCover, normalizeCreatorName } from "@/lib/reel-utils";
 
 export const Route = createFileRoute("/app/")({
   component: Home,
 });
 
 function Home() {
+  const { saved } = useSavedReels();
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const recent = tracks.slice(0, 6);
-  const totalSaved = tracks.length + 142; // mock
-  const totalCreators = artists.length + 21;
+  const recent = saved.slice(0, 6);
+  const totalSaved = saved.length;
+  const creatorMap = new Map<string, string>();
+  saved.forEach((track) => creatorMap.set(normalizeCreatorName(track.artist), track.thumbnailUrl || track.thumbnail || ""));
+  const creators = Array.from(creatorMap.entries()).map(([name, image]) => ({ name, image }));
+
+  const folderSummaries = playlists.map((playlist) => {
+    const folderItems = saved.filter((track) => track.folderId === playlist.id);
+    return {
+      ...playlist,
+      count: folderItems.length,
+      cover: folderItems.length > 0 ? getTrackCover(folderItems[0]) : playlist.cover,
+      thumbnails: folderItems.slice(0, 4).map(getTrackCover),
+    };
+  });
 
   return (
     <div className="space-y-12">
@@ -37,30 +54,38 @@ function Home() {
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
           <Stat icon={<Bookmark className="w-4 h-4" />} value={totalSaved} label="reels saved" />
           <Stat icon={<Sparkles className="w-4 h-4" />} value={playlists.length} label="mood folders" />
-          <Stat icon={<Instagram className="w-4 h-4" />} value={totalCreators} label="creators bookmarked" />
+          <Stat icon={<Instagram className="w-4 h-4" />} value={creators.length} label="creators bookmarked" />
           <Stat icon={<Clock className="w-4 h-4" />} value={"4.2h"} label="listened this week" />
         </div>
       </motion.section>
 
       {/* Continue listening */}
       <Section title="Pick up where you stopped" subtitle="Your last few replays">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {recent.slice(0, 6).map((t) => (
-            <button key={t.id} className="flex items-center gap-3 glass rounded-xl p-2 pr-4 group hover:bg-white/5 transition text-left">
-              <img src={t.cover} alt="" className="w-14 h-14 rounded-lg object-cover" loading="lazy" />
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium truncate group-hover:text-primary transition">{t.title}</div>
-                <div className="text-xs text-muted-foreground truncate">{t.artist} · saved {t.savedAt}</div>
-              </div>
-            </button>
-          ))}
-        </div>
+        {recent.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-sm text-muted-foreground">Your scrapbook is empty. Save a reel to see your last replays here.</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {recent.map((t) => (
+              <button key={t.id} className="flex items-center gap-3 glass rounded-xl p-2 pr-4 group hover:bg-white/5 transition text-left">
+                <div className="w-14 h-14 rounded-lg overflow-hidden">
+                  <ReelCover src={getTrackCover(t)} alt={t.title} className="w-full h-full rounded-lg" fallbackLabel="Reel cover" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium truncate group-hover:text-primary transition">{t.title}</div>
+                  <div className="text-xs text-muted-foreground truncate">{t.artist} · saved {t.savedAt}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </Section>
 
       {/* Mood folders — pinterest-style boards */}
       <Section title="Your mood folders" subtitle="Boards you built from the reels you loved">
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {playlists.map((p) => <PlaylistCard key={p.id} {...p} />)}
+          {folderSummaries.map((p) => (
+            <PlaylistCard key={p.id} {...p} thumbnails={p.thumbnails} />
+          ))}
           <button className="aspect-square rounded-2xl border-2 border-dashed border-white/15 hover:border-primary/60 hover:bg-white/5 transition flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary">
             <Plus className="w-6 h-6" />
             <span className="text-xs">New folder</span>
@@ -81,25 +106,36 @@ function Home() {
       </Section>
 
       {/* Bookmarked creators */}
-      <Section title="Creators you bookmarked" subtitle="Singers from your saved reels">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {artists.map((a) => (
-            <div key={a.name} className="glass rounded-2xl p-5 text-center group">
-              <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden ring-2 ring-primary/30 group-hover:ring-primary transition">
-                <img src={a.image} alt={a.name} className="w-full h-full object-cover" loading="lazy" />
+      <Section title="Creators you bookmarkedHELLO KRIPA TEST" subtitle="Singers from your saved reels">
+        <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+          {creators.length === 0 ? (
+            <div className="glass rounded-2xl p-8 text-sm text-muted-foreground">No creators yet — save a reel and Reelo will surface the artist here.</div>
+          ) : (
+            creators.map((creator) => (
+              <div
+                key={creator.name}
+                className="glass rounded-2xl p-5 text-center group min-w-[220px] flex-shrink-0"
+              >
+                <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden ring-2 ring-primary/30 group-hover:ring-primary transition">
+                  <CreatorAvatar name={creator.name} src={creator.image} className="w-28 h-28" />
+                </div>
+                <div className="mt-4 font-medium">{creator.name}</div>
+                <div className="text-xs text-muted-foreground">{saved.filter((t) => normalizeCreatorName(t.artist) === creator.name).length} reels saved</div>
               </div>
-              <div className="mt-4 font-medium">{a.name}</div>
-              <div className="text-xs text-muted-foreground">{a.followers}</div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </Section>
 
       {/* Recently saved scrapbook */}
       <Section title="Recently saved" subtitle="Fresh from your Instagram saves">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
-          {recent.map((t) => <MusicCard key={t.id} track={t} queue={recent} />)}
-        </div>
+        {saved.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-sm text-muted-foreground">There are no saved reels yet — paste an Instagram reel link from the Save a reel screen.</div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
+            {saved.map((t) => <MusicCard key={t.id} track={t} queue={saved} />)}
+          </div>
+        )}
       </Section>
     </div>
   );

@@ -1,7 +1,10 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Instagram, Folder, ListMusic, Heart, Clock, Settings, Plus } from "lucide-react";
 import logo from "@/assets/reelo-logo.png";
-import { playlists } from "@/lib/mock-data";
+import { usePlaylists } from "@/lib/playlist-store";
+import useSavedReels from "@/lib/saved-store";
+import { getTrackCover } from "@/lib/reel-utils";
+import { PlaylistThumbnail } from "@/components/PlaylistThumbnail";
 
 const nav = [
   { to: "/app", label: "Home", icon: Home, exact: true },
@@ -14,6 +17,19 @@ const nav = [
 
 export function Sidebar() {
   const { pathname } = useLocation();
+  const { playlists } = usePlaylists();
+  const { saved } = useSavedReels();
+
+  const playlistSummaries = playlists.map((p) => {
+    const playlistItems = saved.filter((track) => track.folderId === p.id);
+    return {
+      ...p,
+      count: playlistItems.length,
+      cover: playlistItems.length > 0 ? getTrackCover(playlistItems[0]) : p.cover,
+      thumbnails: playlistItems.slice(0, 4).map(getTrackCover),
+    };
+  });
+
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 p-4 gap-3">
       <Link to="/" className="flex items-center gap-2 px-2 py-3">
@@ -44,20 +60,24 @@ export function Sidebar() {
 
       <div className="glass rounded-2xl p-3 flex-1 overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">Mood folders</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">Your playlists</span>
           <button className="p-1 rounded-md hover:bg-white/10 text-muted-foreground hover:text-primary transition">
             <Plus className="w-4 h-4" />
           </button>
         </div>
         <div className="mt-2 flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-1">
-          {playlists.map((p) => (
+          {playlistSummaries.map((p) => (
             <Link
               key={p.id}
               to="/app/playlist/$id"
               params={{ id: p.id }}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 group"
             >
-              <img src={p.cover} alt="" className="w-9 h-9 rounded-md object-cover" loading="lazy" />
+              <PlaylistThumbnail
+                cover={p.cover}
+                thumbnails={p.thumbnails}
+                className="w-12 h-12 rounded-2xl"
+              />
               <div className="min-w-0">
                 <div className="text-sm truncate group-hover:text-primary transition">{p.title}</div>
                 <div className="text-xs text-muted-foreground truncate">{p.count} reels</div>

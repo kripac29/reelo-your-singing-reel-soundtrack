@@ -2,6 +2,8 @@ import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, Heart, Li
 import { motion, AnimatePresence } from "framer-motion";
 import { usePlayer } from "@/lib/player-store";
 import { useState } from "react";
+import { getTrackCover } from "@/lib/reel-utils";
+import { ReelCover } from "@/components/ReelCover";
 
 export function FloatingPlayer() {
   const p = usePlayer();
@@ -20,7 +22,7 @@ export function FloatingPlayer() {
           {/* Track */}
           <div className="flex items-center gap-3 min-w-0 flex-1 lg:flex-none lg:w-72">
             <div className="relative">
-              <img src={p.current.cover} alt="" className="w-12 h-12 lg:w-14 lg:h-14 rounded-xl object-cover" />
+              <ReelCover src={getTrackCover(p.current)} alt={p.current.title} className="w-12 h-12 lg:w-14 lg:h-14 rounded-xl" fallbackLabel="Now playing" />
               {p.isPlaying && (
                 <div className="absolute inset-0 rounded-xl ring-2 ring-primary/60 animate-pulse" />
               )}
@@ -114,7 +116,7 @@ export function FloatingPlayer() {
                     p.current?.id === t.id ? "bg-primary/15 text-primary" : "hover:bg-white/5"
                   }`}
                 >
-                  <img src={t.cover} alt="" className="w-10 h-10 rounded-md object-cover" loading="lazy" />
+                  <ReelCover src={getTrackCover(t)} alt={t.title} className="w-10 h-10 rounded-md" fallbackLabel="Queue" />
                   <div className="min-w-0 flex-1">
                     <div className="text-sm truncate">{t.title}</div>
                     <div className="text-xs text-muted-foreground truncate">{t.artist}</div>

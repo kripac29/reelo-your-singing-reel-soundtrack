@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { FloatingPlayer } from "@/components/FloatingPlayer";
+import { AudioEngine } from "@/components/AudioEngine";
 import { MobileNav } from "@/components/MobileNav";
 import { PlayerProvider } from "@/lib/player-store";
 import logo from "@/assets/reelo-logo.png";
@@ -29,6 +30,7 @@ function AppLayout() {
         </div>
       </div>
       <MobileNav />
+      <AudioEngine />
       <FloatingPlayer />
     </PlayerProvider>
   );

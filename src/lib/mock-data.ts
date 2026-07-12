@@ -11,11 +11,17 @@ export type Track = {
   id: string;
   title: string;
   artist: string; // creator handle
+  subtitle?: string; // first emotional caption line
   cover: string;
   duration: string;
   mood?: string;
   savedAt?: string; // human label e.g. "2 days ago"
   sourceUrl?: string; // original instagram reel link
+  folderId?: string;
+  audioUrl?: string; // backend-served mp3 url
+  durationSeconds?: number; // duration in seconds from backend
+  thumbnail?: string; // legacy thumbnail field
+  thumbnailUrl?: string; // local backend-served thumbnail URL
 };
 
 export const covers = [cover1, cover2, cover3, cover4, cover5, cover6];
@@ -32,7 +38,15 @@ export const tracks: Track[] = [
   { id: "8", title: "Glass Hearts", artist: "@nova.rae", cover: cover4, duration: "1:04", mood: "Heartbreak", savedAt: "1 month ago" },
 ];
 
-export const playlists = [
+export type Playlist = {
+  id: string;
+  title: string;
+  desc: string;
+  cover: string;
+  count: number;
+};
+
+export const playlists: Playlist[] = [
   { id: "p1", title: "Late Night Singing", desc: "Reels for 2 a.m. feelings", cover: cover1, count: 24 },
   { id: "p2", title: "Heartbreak Hits", desc: "Cry, then repeat", cover: cover4, count: 18 },
   { id: "p3", title: "Indie Voices I Found", desc: "Hidden creators worth saving", cover: cover6, count: 32 },
@@ -40,6 +54,8 @@ export const playlists = [
   { id: "p5", title: "Throwback Reels", desc: "2010s nostalgia", cover: cover5, count: 14 },
   { id: "p6", title: "Acoustic Sessions", desc: "Raw guitar + voice", cover: cover2, count: 27 },
 ];
+
+export const defaultPlaylists: Playlist[] = playlists;
 
 export const moods = [
   { name: "Late Night", gradient: "from-indigo-500 to-purple-600" },
