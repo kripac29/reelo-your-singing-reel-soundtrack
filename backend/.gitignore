@@ -1,3 +1,7 @@
 node_modules/
-uploads/audio/
 .env
+
+tmp.jpg
+tmp.m4a
+
+uploads/
