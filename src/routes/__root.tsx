@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -78,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Reelo — Your singing reels, now a music app" },
-      { name: "description", content: "Turn saved Instagram singing reels into a personal Spotify-style listening experience." },
+      { name: "description", content: "Turn saved Instagram singing reels into a personal listening scrapbook." },
       { name: "author", content: "Reelo" },
       { property: "og:title", content: "Reelo" },
       { property: "og:description", content: "Personal music app for your saved singing reels." },
@@ -107,6 +108,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster richColors closeButton />
         <Scripts />
       </body>
     </html>

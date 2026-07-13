@@ -15,6 +15,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppSaveRouteImport } from './routes/app.save'
 import { Route as AppRecentRouteImport } from './routes/app.recent'
 import { Route as AppLibraryRouteImport } from './routes/app.library'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
@@ -49,6 +50,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSaveRoute = AppSaveRouteImport.update({
+  id: '/save',
+  path: '/save',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRecentRoute = AppRecentRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/app/favorites': typeof AppFavoritesRoute
   '/app/library': typeof AppLibraryRoute
   '/app/recent': typeof AppRecentRoute
+  '/app/save': typeof AppSaveRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/': typeof AppIndexRoute
   '/app/playlist/$id': typeof AppPlaylistIdRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/app/favorites': typeof AppFavoritesRoute
   '/app/library': typeof AppLibraryRoute
   '/app/recent': typeof AppRecentRoute
+  '/app/save': typeof AppSaveRoute
   '/app/settings': typeof AppSettingsRoute
   '/app': typeof AppIndexRoute
   '/app/playlist/$id': typeof AppPlaylistIdRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/app/favorites': typeof AppFavoritesRoute
   '/app/library': typeof AppLibraryRoute
   '/app/recent': typeof AppRecentRoute
+  '/app/save': typeof AppSaveRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/': typeof AppIndexRoute
   '/app/playlist/$id': typeof AppPlaylistIdRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/app/favorites'
     | '/app/library'
     | '/app/recent'
+    | '/app/save'
     | '/app/settings'
     | '/app/'
     | '/app/playlist/$id'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/app/favorites'
     | '/app/library'
     | '/app/recent'
+    | '/app/save'
     | '/app/settings'
     | '/app'
     | '/app/playlist/$id'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/app/favorites'
     | '/app/library'
     | '/app/recent'
+    | '/app/save'
     | '/app/settings'
     | '/app/'
     | '/app/playlist/$id'
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/save': {
+      id: '/app/save'
+      path: '/save'
+      fullPath: '/app/save'
+      preLoaderRoute: typeof AppSaveRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/recent': {
       id: '/app/recent'
       path: '/recent'
@@ -251,6 +270,7 @@ interface AppRouteChildren {
   AppFavoritesRoute: typeof AppFavoritesRoute
   AppLibraryRoute: typeof AppLibraryRoute
   AppRecentRoute: typeof AppRecentRoute
+  AppSaveRoute: typeof AppSaveRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppPlaylistIdRoute: typeof AppPlaylistIdRoute
@@ -261,6 +281,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFavoritesRoute: AppFavoritesRoute,
   AppLibraryRoute: AppLibraryRoute,
   AppRecentRoute: AppRecentRoute,
+  AppSaveRoute: AppSaveRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppPlaylistIdRoute: AppPlaylistIdRoute,

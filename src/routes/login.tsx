@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import logo from "@/assets/reelo-logo.png";
+import { logoDataUri } from "@/lib/image-assets";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
@@ -13,7 +13,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       <div className="hidden lg:flex relative items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,oklch(0.72_0.3_350/0.4),transparent_60%),radial-gradient(circle_at_70%_70%,oklch(0.45_0.22_270/0.5),transparent_60%)]" />
         <div className="relative text-center space-y-6">
-          <img src={logo} alt="" className="w-32 h-32 mx-auto rounded-3xl float-slow glow" />
+          <img src={logoDataUri} alt="" className="w-32 h-32 mx-auto rounded-3xl float-slow glow" />
           <h2 className="font-display text-4xl font-bold">Press play on <span className="text-gradient">your reels.</span></h2>
           <p className="text-muted-foreground max-w-sm mx-auto">A calmer, more personal way to listen to the singing reels you already love.</p>
         </div>
@@ -21,7 +21,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       <div className="flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md glass-strong rounded-3xl p-8">
           <Link to="/" className="flex items-center gap-2 mb-6 lg:hidden">
-            <img src={logo} alt="" className="w-8 h-8 rounded" />
+            <img src={logoDataUri} alt="" className="w-8 h-8 rounded" />
             <span className="font-display font-bold text-gradient">Reelo</span>
           </Link>
           <h1 className="font-display text-3xl font-bold">{mode === "login" ? "Welcome back" : "Create your account"}</h1>
