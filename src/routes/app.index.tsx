@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { playlists, moods } from "@/lib/mock-data";
 import { MusicCard } from "@/components/MusicCard";
-import { PlaylistCard } from "@/components/PlaylistCard";
 import { CreatorAvatar } from "@/components/CreatorAvatar";
 import { ReelCover } from "@/components/ReelCover";
 import useSavedReels from "@/lib/saved-store";
@@ -22,16 +21,6 @@ function Home() {
   const creatorMap = new Map<string, string>();
   saved.forEach((track) => creatorMap.set(normalizeCreatorName(track.artist), track.thumbnailUrl || track.thumbnail || ""));
   const creators = Array.from(creatorMap.entries()).map(([name, image]) => ({ name, image }));
-
-  const folderSummaries = playlists.map((playlist) => {
-    const folderItems = saved.filter((track) => track.folderId === playlist.id);
-    return {
-      ...playlist,
-      count: folderItems.length,
-      cover: folderItems.length > 0 ? getTrackCover(folderItems[0]) : playlist.cover,
-      thumbnails: folderItems.slice(0, 4).map(getTrackCover),
-    };
-  });
 
   return (
     <div className="space-y-12">
@@ -78,19 +67,6 @@ function Home() {
             ))}
           </div>
         )}
-      </Section>
-
-      {/* Mood folders — pinterest-style boards */}
-      <Section title="Your mood folders" subtitle="Boards you built from the reels you loved">
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {folderSummaries.map((p) => (
-            <PlaylistCard key={p.id} {...p} thumbnails={p.thumbnails} />
-          ))}
-          <button className="aspect-square rounded-2xl border-2 border-dashed border-white/15 hover:border-primary/60 hover:bg-white/5 transition flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary">
-            <Plus className="w-6 h-6" />
-            <span className="text-xs">New folder</span>
-          </button>
-        </div>
       </Section>
 
       {/* Mood quick filters */}

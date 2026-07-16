@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { playlists } from "@/lib/mock-data";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import { MusicCard } from "@/components/MusicCard";
 import useSavedReels from "@/lib/saved-store";
+import { usePlaylists } from "@/lib/playlist-store";
 import { getTrackCover } from "@/lib/reel-utils";
 
 export const Route = createFileRoute("/app/library")({ component: Library });
 
 function Library() {
   const { saved } = useSavedReels();
+  const { playlists } = usePlaylists();
 
   const folderSummaries = playlists.map((playlist) => {
     const folderItems = saved.filter((track) => track.folderId === playlist.id);
@@ -41,11 +42,15 @@ function Library() {
       </div>
 
       <section>
-        <h2 className="font-display text-xl font-bold mb-4">Your mood folders</h2>
+        <h2 className="font-display text-xl font-bold mb-4">Your playlists</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
-          {folderSummaries.map((p) => (
-            <PlaylistCard key={p.id} {...p} thumbnails={p.thumbnails} />
-          ))}
+          {folderSummaries.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No playlists yet — save a reel to create one.</div>
+          ) : (
+            folderSummaries.map((p) => (
+              <PlaylistCard key={p.id} {...p} thumbnails={p.thumbnails} />
+            ))
+          )}
         </div>
       </section>
 
