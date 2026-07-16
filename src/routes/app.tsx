@@ -4,7 +4,6 @@ import { TopBar } from "@/components/TopBar";
 import { FloatingPlayer } from "@/components/FloatingPlayer";
 import { AudioEngine } from "@/components/AudioEngine";
 import { MobileNav } from "@/components/MobileNav";
-import { PlayerProvider } from "@/lib/player-store";
 import logo from "@/assets/reelo-logo.png";
 
 export const Route = createFileRoute("/app")({
@@ -13,7 +12,7 @@ export const Route = createFileRoute("/app")({
 
 function AppLayout() {
   return (
-    <PlayerProvider>
+    <>
       <div className="flex">
         <Sidebar />
         <div className="flex-1 min-w-0 flex flex-col min-h-screen">
@@ -32,6 +31,6 @@ function AppLayout() {
       <MobileNav />
       <AudioEngine />
       <FloatingPlayer />
-    </PlayerProvider>
+    </>
   );
 }

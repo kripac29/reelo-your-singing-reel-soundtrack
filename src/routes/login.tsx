@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { logoDataUri } from "@/lib/image-assets";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
@@ -8,6 +11,120 @@ function Login() {
 }
 
 export function AuthCard({ mode }: { mode: "login" | "signup" }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showOtpStep, setShowOtpStep] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+
+      navigate({ to: "/app" });
+    } catch (err) {
+      alert("Server error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendOtp = async (resend = false) => {
+    if (!email) {
+      alert("Email is required");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://localhost:5000/api/auth/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to send OTP");
+        return;
+      }
+
+      setOtp("");
+      setShowOtpStep(true);
+      if (!resend) {
+        toast.success(data.message || "OTP sent successfully");
+      }
+    } catch (err) {
+      alert("Server error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otp.length !== 6) {
+      alert("Please enter a 6-digit OTP");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://localhost:5000/api/auth/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          otp,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "OTP verification failed");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      toast.success("Account created successfully");
+      navigate({ to: "/app" });
+    } catch (err) {
+      alert("Server error");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex relative items-center justify-center p-12 overflow-hidden">
@@ -28,12 +145,82 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
           <p className="text-sm text-muted-foreground mt-1">{mode === "login" ? "Your library is waiting." : "Free during beta. No card required."}</p>
 
           <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
-            {mode === "signup" && <Field label="Name" type="text" placeholder="Your name" />}
-            <Field label="Email" type="email" placeholder="you@reelo.app" />
-            <Field label="Password" type="password" placeholder="••••••••" />
-            <Link to="/app" className="block text-center w-full py-3 rounded-full gradient-brand text-white font-semibold mt-2 shadow-[0_15px_40px_-10px_oklch(0.72_0.3_350/0.6)]">
-              {mode === "login" ? "Sign in" : "Create account"}
-            </Link>
+            {mode === "signup" && !showOtpStep && (
+              <Field
+                label="Name"
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            )}
+            {mode === "signup" && !showOtpStep && (
+              <Field
+                label="Email"
+                type="email"
+                placeholder="you@reelo.app"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            )}
+            {mode === "signup" && !showOtpStep && (
+              <Field
+                label="Password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            )}
+            {mode === "signup" && showOtpStep ? (
+              <>
+                <Field
+                  label="OTP"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  placeholder="123456"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                />
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={handleVerifyOtp}
+                    disabled={loading || otp.length !== 6}
+                    className="flex-1 py-3 rounded-full gradient-brand text-white font-semibold mt-2 shadow-[0_15px_40px_-10px_oklch(0.72_0.3_350/0.6)]"
+                  >
+                    {loading ? "Verifying..." : "Verify"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowOtpStep(false)}
+                    disabled={loading}
+                    className="px-4 py-3 rounded-full glass border border-white/10 hover:border-primary/40 transition text-sm font-medium"
+                  >
+                    Back
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSendOtp(true)}
+                  disabled={loading}
+                  className="w-full py-3 rounded-full glass border border-white/10 hover:border-primary/40 transition text-sm font-medium"
+                >
+                  {loading ? "Sending..." : "Resend OTP"}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={mode === "signup" ? () => handleSendOtp() : handleLogin}
+                disabled={loading}
+                className="w-full py-3 rounded-full gradient-brand text-white font-semibold mt-2 shadow-[0_15px_40px_-10px_oklch(0.72_0.3_350/0.6)]"
+              >
+                {loading ? (mode === "signup" ? "Sending OTP..." : "Signing in...") : mode === "signup" ? "Send OTP" : "Sign in"}
+              </button>
+            )}
           </form>
 
           <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">

@@ -5,37 +5,32 @@ export function AudioEngine() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const p = usePlayer();
 
-  // Update audio source when track changes
   useEffect(() => {
     if (!audioRef.current) return;
-    
-    // Use audioUrl if available (backend-served), otherwise fall back to empty
+
     const src = p.current?.audioUrl || "";
     if (audioRef.current.src !== src) {
       audioRef.current.src = src;
-      if (p.isPlaying && src) {
-        audioRef.current.play().catch(() => {});
-      }
+      audioRef.current.currentTime = 0;
     }
-  }, [p.current?.id, p.current?.audioUrl]);
 
-  // Sync play/pause state
-  useEffect(() => {
-    if (!audioRef.current) return;
+    if (!src) {
+      audioRef.current.pause();
+      return;
+    }
+
     if (p.isPlaying) {
       audioRef.current.play().catch(() => {});
     } else {
       audioRef.current.pause();
     }
-  }, [p.isPlaying]);
+  }, [p.current?.audioUrl, p.current?.id, p.isPlaying]);
 
-  // Sync volume
   useEffect(() => {
     if (!audioRef.current) return;
     audioRef.current.volume = Math.max(0, Math.min(1, p.volume / 100));
   }, [p.volume]);
 
-  // Sync progress
   useEffect(() => {
     if (!audioRef.current || !audioRef.current.duration) return;
     const targetTime = (p.progress / 100) * audioRef.current.duration;
@@ -44,7 +39,6 @@ export function AudioEngine() {
     }
   }, [p.progress]);
 
-  // Handle audio events
   const handleTimeUpdate = () => {
     if (!audioRef.current || !audioRef.current.duration) return;
     const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
