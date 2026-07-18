@@ -6,6 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const importRouter = require("./routes/import");
 const connectDB = require("./config/db");
+const playlistRouter = require("./routes/playlistRoutes");
 
 // Load environment variables from the local .env file when present.
 require("dotenv").config();
@@ -59,6 +60,7 @@ app.use("/api/import", importRouter);
 
 // Authentication routes for OTP sign-up and login.
 app.use("/api/auth", authRouter);
+app.use("/api/playlists", playlistRouter);
 
 // 404 handler
 app.use((req, res) => {
