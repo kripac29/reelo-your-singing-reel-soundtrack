@@ -1,38 +1,86 @@
 import { useCallback, useEffect, useState } from "react";
-import { defaultPlaylists, type Playlist } from "./mock-data";
 
-const KEY = "reelo:playlists:v1";
-const PLACEHOLDER_IDS = new Set(["p1", "p2", "p3", "p4", "p5", "p6"]);
+export type Playlist = {
+  id: string;
+  title: string;
+  desc: string;
+  cover: string;
+  count: number;
+};
 
-function readStored(): Playlist[] {
-  try {
-    if (typeof window === "undefined" || !window.localStorage) return [];
-    const raw = window.localStorage.getItem(KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as Playlist[];
-    return parsed.filter((playlist) => !PLACEHOLDER_IDS.has(playlist.id));
-  } catch (e) {
-    return [];
-  }
+const API_BASE_URL = "http://localhost:5000/api";
+
+function mapPlaylist(item: any): Playlist {
+  return {
+    id: item?._id ?? item?.id ?? "",
+    title: item?.name ?? item?.title ?? "Untitled playlist",
+    desc: item?.description ?? item?.desc ?? "",
+    cover: item?.coverImage ?? item?.cover ?? "",
+    count: typeof item?.count === "number" ? item.count : 0,
+  };
 }
 
-function writeStored(value: Playlist[]) {
-  try {
-    if (typeof window === "undefined" || !window.localStorage) return;
-    window.localStorage.setItem(KEY, JSON.stringify(value));
-  } catch (e) {
-    // ignore
+function getAuthHeaders() {
+  const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
+async function fetchPlaylistsFromApi(): Promise<Playlist[]> {
+  const response = await fetch(`${API_BASE_URL}/playlists`, {
+    headers: getAuthHeaders(),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load playlists");
+  }
+
+  const data = await response.json();
+  return Array.isArray(data?.playlists) ? data.playlists.map(mapPlaylist) : [];
+}
+
+async function createPlaylistOnApi(playlist: Playlist): Promise<Playlist> {
+  const response = await fetch(`${API_BASE_URL}/playlists`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    credentials: "include",
+    body: JSON.stringify({
+      name: playlist.title,
+      description: playlist.desc,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData?.message || "Unable to create playlist");
+  }
+
+  const data = await response.json();
+  return mapPlaylist(data?.playlist);
+}
+
+async function deletePlaylistOnApi(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData?.message || "Unable to delete playlist");
   }
 }
 
 const store = {
   data: [] as Playlist[],
   listeners: new Set<(value: Playlist[]) => void>(),
-  init() {
-    if (this.data.length === 0) {
-      this.data = readStored();
-    }
-  },
   notify() {
     for (const listener of this.listeners) {
       listener(this.data);
@@ -45,29 +93,59 @@ const store = {
       this.listeners.delete(fn);
     };
   },
-  add(playlist: Playlist) {
-    this.data = [...this.data, playlist];
-    writeStored(this.data);
+  async load() {
+    try {
+      this.data = await fetchPlaylistsFromApi();
+    } catch (error) {
+      this.data = [];
+    }
+    this.notify();
+  },
+  async add(playlist: Playlist) {
+    const created = await createPlaylistOnApi(playlist);
+    this.data = [created, ...this.data.filter((item) => item.id !== created.id)];
+    this.notify();
+    return created;
+  },
+  async remove(id: string) {
+    await deletePlaylistOnApi(id);
+    this.data = this.data.filter((playlist) => playlist.id !== id);
     this.notify();
   },
 };
 
-store.init();
-
 export function usePlaylists() {
-  const [playlists, setPlaylists] = useState<Playlist[]>(() => store.data.length ? store.data : defaultPlaylists);
+  const [playlists, setPlaylists] = useState<Playlist[]>(() => store.data);
 
   useEffect(() => {
-    store.init();
-    const unsubscribe = store.subscribe((value) => setPlaylists(value));
-    return unsubscribe;
+    let active = true;
+
+    const loadPlaylists = async () => {
+      await store.load();
+      if (!active) return;
+      setPlaylists(store.data);
+    };
+
+    void loadPlaylists();
+
+    const unsubscribe = store.subscribe((value) => {
+      if (!active) return;
+      setPlaylists(value);
+    });
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
-  const addPlaylist = useCallback((playlist: Playlist) => {
-    store.add(playlist);
+  const addPlaylist = useCallback(async (playlist: Playlist) => {
+    return store.add(playlist);
   }, []);
 
-  return { playlists, addPlaylist } as const;
+  const deletePlaylist = useCallback(async (id: string) => {
+    await store.remove(id);
+  }, []);
+
+  return { playlists, addPlaylist, deletePlaylist } as const;
 }
-
-export type { Playlist };

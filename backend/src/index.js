@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const importRouter = require("./routes/import");
 const connectDB = require("./config/db");
 const playlistRouter = require("./routes/playlistRoutes");
+const reelRouter = require("./routes/reelRoutes");
 
 // Load environment variables from the local .env file when present.
 require("dotenv").config();
@@ -15,7 +16,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS for the frontend and parse incoming JSON payloads.
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:8080",
+      "http://localhost:8081",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -61,6 +70,7 @@ app.use("/api/import", importRouter);
 // Authentication routes for OTP sign-up and login.
 app.use("/api/auth", authRouter);
 app.use("/api/playlists", playlistRouter);
+app.use("/api/reels", reelRouter);
 
 // 404 handler
 app.use((req, res) => {

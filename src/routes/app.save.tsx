@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ArrowDownToLine, Instagram, Link2, Loader2 } from "lucide-react";
 
-import { playlists } from "@/lib/mock-data";
+import { usePlaylists } from "@/lib/playlist-store";
 import { usePlayer } from "@/lib/player-store";
 import { useReels } from "@/lib/reels-store";
 import {
@@ -20,15 +20,24 @@ function SaveReel() {
   const navigate = useNavigate();
   const { addReel, reels } = useReels();
   const player = usePlayer();
+  const { playlists } = usePlaylists();
   const [url, setUrl] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
-  const [folderId, setFolderId] = useState<string>(playlists[0]?.id ?? "");
+  const [folderId, setFolderId] = useState<string>("");
   const [mood, setMood] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    if (!playlists.length) return;
+
+    if (!folderId || !playlists.some((playlist) => playlist.id === folderId)) {
+      setFolderId(playlists[0].id);
+    }
+  }, [folderId, playlists]);
+
   const folderOptions = useMemo(
     () => playlists.map((p) => ({ id: p.id, title: p.title })),
-    [],
+    [playlists],
   );
 
   return (
@@ -92,22 +101,20 @@ function SaveReel() {
                 }
               }
 
-              const now = Date.now();
-              const id = `reel_${now}`;
               const newReel = {
-                id,
                 title: "Saved Instagram reel",
                 artist: "Creator",
                 cover: playlists.find((p) => p.id === folderId)?.cover ?? playlists[0]?.cover ?? "",
                 audioUrl: resolvedAudio,
                 folderId,
-                instagramUrl: url.trim(),
-                savedAt: now,
+                sourceUrl: url.trim(),
+                savedAt: "just now",
                 duration: "—",
                 mood: mood.trim(),
               };
-              addReel(newReel);
-              player.play(newReel, [newReel, ...reels]);
+              try {
+                const createdReel = await addReel(newReel);
+                player.play(createdReel, [createdReel, ...reels]);
 
               toast.success("Saved and playing", {
                 description: `Folder: ${folderOptions.find((f) => f.id === folderId)?.title ?? "—"} · Mood: ${mood.trim()}`,
@@ -116,7 +123,12 @@ function SaveReel() {
               setAudioUrl("");
               setMood("");
               setSaving(false);
-              navigate({ to: "/app/library" });
+                navigate({ to: "/app/library" });
+              } catch (saveError) {
+                toast.error(saveError instanceof Error ? saveError.message : "Unable to save reel");
+              } finally {
+                setSaving(false);
+              }
             }}
           >
             <div>

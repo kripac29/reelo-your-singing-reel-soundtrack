@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { playlists, moods } from "@/lib/mock-data";
+import { moods } from "@/lib/mock-data";
 import { MusicCard } from "@/components/MusicCard";
 import { CreatorAvatar } from "@/components/CreatorAvatar";
 import { ReelCover } from "@/components/ReelCover";
-import useSavedReels from "@/lib/saved-store";
+import { useReels } from "@/lib/reels-store";
+import { usePlaylists } from "@/lib/playlist-store";
 import { Instagram, Plus, Bookmark, Clock, Sparkles } from "lucide-react";
 import { getTrackCover, normalizeCreatorName } from "@/lib/reel-utils";
 
@@ -13,7 +14,8 @@ export const Route = createFileRoute("/app/")({
 });
 
 function Home() {
-  const { saved } = useSavedReels();
+  const { reels: saved } = useReels();
+  const { playlists } = usePlaylists();
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const recent = saved.slice(0, 6);
@@ -82,7 +84,7 @@ function Home() {
       </Section>
 
       {/* Bookmarked creators */}
-      <Section title="Creators you bookmarkedHELLO KRIPA TEST" subtitle="Singers from your saved reels">
+      <Section title="Creators you bookmarked" subtitle="Singers from your saved reels">
         <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
           {creators.length === 0 ? (
             <div className="glass rounded-2xl p-8 text-sm text-muted-foreground">No creators yet — save a reel and Reelo will surface the artist here.</div>

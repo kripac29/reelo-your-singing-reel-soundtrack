@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { playlists } from "@/lib/mock-data";
-import useSavedReels from "@/lib/saved-store";
+import { useReels } from "@/lib/reels-store";
+import { usePlaylists } from "@/lib/playlist-store";
 import { Play, Shuffle, Heart, MoreHorizontal, GripVertical, Clock } from "lucide-react";
 import { usePlayer } from "@/lib/player-store";
 import { getTrackCover } from "@/lib/reel-utils";
@@ -10,12 +10,15 @@ export const Route = createFileRoute("/app/playlist/$id")({ component: PlaylistP
 
 function PlaylistPage() {
   const { id } = Route.useParams();
-  const playlist = playlists.find((p) => p.id === id) ?? playlists[0];
-  const { saved } = useSavedReels();
+  const { playlists } = usePlaylists();
+  const playlist = playlists.find((p) => p.id === id) ?? playlists[0] ?? null;
+  const { reels: saved } = useReels();
   const list = saved.filter((t) => t.folderId === id);
   const count = list.length;
   const p = usePlayer();
-  const playlistCover = list.length > 0 ? getTrackCover(list[0]) : playlist.cover;
+  const playlistCover = list.length > 0 ? getTrackCover(list[0]) : playlist?.cover ?? "";
+  const title = playlist?.title ?? "Your playlist";
+  const description = playlist?.desc ?? "Loading playlist details...";
 
   return (
     <div className="space-y-8">
@@ -26,8 +29,8 @@ function PlaylistPage() {
           <ReelCover src={playlistCover} alt={playlist.title} className="w-44 h-44 md:w-56 md:h-56 rounded-2xl shadow-[0_30px_80px_-20px_oklch(0_0_0/0.7)]" fallbackLabel="Playlist cover" />
           <div className="min-w-0">
             <span className="text-xs uppercase tracking-widest text-muted-foreground">Playlist</span>
-            <h1 className="font-display text-4xl md:text-6xl font-bold mt-2 leading-none">{playlist.title}</h1>
-            <p className="text-muted-foreground mt-3">{playlist.desc}</p>
+            <h1 className="font-display text-4xl md:text-6xl font-bold mt-2 leading-none">{title}</h1>
+            <p className="text-muted-foreground mt-3">{description}</p>
             <div className="text-xs text-muted-foreground mt-2">{count} reels · ~38 min</div>
           </div>
         </div>

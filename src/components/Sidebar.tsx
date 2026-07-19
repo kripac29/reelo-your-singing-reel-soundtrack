@@ -2,7 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Instagram, Folder, ListMusic, Heart, Clock, Settings, Plus } from "lucide-react";
 import logo from "@/assets/reelo-logo.png";
 import { usePlaylists } from "@/lib/playlist-store";
-import useSavedReels from "@/lib/saved-store";
+import { useReels } from "@/lib/reels-store";
 import { getTrackCover } from "@/lib/reel-utils";
 import { PlaylistThumbnail } from "@/components/PlaylistThumbnail";
 
@@ -18,7 +18,7 @@ const nav = [
 export function Sidebar() {
   const { pathname } = useLocation();
   const { playlists } = usePlaylists();
-  const { saved } = useSavedReels();
+  const { reels: saved } = useReels();
 
   const playlistSummaries = playlists.map((p) => {
     const playlistItems = saved.filter((track) => track.folderId === p.id);

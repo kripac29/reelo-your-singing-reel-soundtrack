@@ -12,54 +12,6 @@ const generateToken = (user) => {
   );
 };
 
-const signup = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    // Validate the request payload before creating a user.
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
-
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Block duplicate registration with the same email.
-    const existingUser = await User.findOne({ email: normalizedEmail });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Email already registered",
-      });
-    }
-
-    // Hash the password before saving it to MongoDB.
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      name,
-      email: normalizedEmail,
-      password: hashedPassword,
-      isVerified: true,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "User created successfully",
-      user,
-    });
-  } catch (error) {
-    console.error("signup error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
-  }
-};
-
 const verifyOTP = async (req, res) => {
   try {
     // Read the verification payload.
@@ -108,19 +60,9 @@ const verifyOTP = async (req, res) => {
     // Remove all OTP records for that email after successful verification.
     await OTP.deleteMany({ email: normalizedEmail });
 
-    // Generate a JWT and store it in an HTTP-only cookie.
-    const token = generateToken(user);
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
     return res.status(201).json({
       success: true,
-      message: "Account verified and created successfully",
-      token,
+      message: "Account created successfully. Please sign in.",
       user: {
         id: user._id,
         name: user.name,
@@ -215,9 +157,18 @@ const getMe = async (req, res) => {
   }
 };
 
+const logout = async (_req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  return res.status(200).json({ success: true, message: "Logged out successfully" });
+};
+
 module.exports = {
-  signup,
   verifyOTP,
   login,
   getMe,
+  logout,
 };

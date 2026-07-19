@@ -1,10 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { logoDataUri } from "@/lib/image-assets";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { getCurrentUser, useAuth } from "@/lib/auth-store";
 
-export const Route = createFileRoute("/login")({ component: Login });
+export const Route = createFileRoute("/login")({
+  beforeLoad: async () => {
+    if (typeof window !== "undefined" && await getCurrentUser()) throw redirect({ to: "/app" });
+  },
+  component: Login,
+});
 
 function Login() {
   return <AuthCard mode="login" />;
@@ -18,42 +24,27 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
   const [loading, setLoading] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
   const navigate = useNavigate();
+  const { signIn, user, isLoading: isAuthLoading } = useAuth();
+
+  if (isAuthLoading) return null;
+  if (user) return <Navigate to="/app" />;
 
   const handleLogin = async () => {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
-
-      localStorage.setItem("token", data.token);
-
+      await signIn(email, password);
       navigate({ to: "/app" });
-    } catch (err) {
-      alert("Server error");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Server error");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSendOtp = async (resend = false) => {
-    if (!email) {
-      alert("Email is required");
+    if (!name.trim() || !email.trim() || !password) {
+      alert("Name, email and password are required");
       return;
     }
 
@@ -116,9 +107,8 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
         return;
       }
 
-      localStorage.setItem("token", data.token);
       toast.success("Account created successfully");
-      navigate({ to: "/app" });
+      navigate({ to: "/login" });
     } catch (err) {
       alert("Server error");
     } finally {
@@ -145,7 +135,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
           <p className="text-sm text-muted-foreground mt-1">{mode === "login" ? "Your library is waiting." : "Free during beta. No card required."}</p>
 
           <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
-            {mode === "signup" && !showOtpStep && (
+            {!showOtpStep && mode === "signup" && (
               <Field
                 label="Name"
                 type="text"
@@ -154,7 +144,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
                 onChange={(e) => setName(e.target.value)}
               />
             )}
-            {mode === "signup" && !showOtpStep && (
+            {!showOtpStep && (
               <Field
                 label="Email"
                 type="email"
@@ -163,7 +153,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
                 onChange={(e) => setEmail(e.target.value)}
               />
             )}
-            {mode === "signup" && !showOtpStep && (
+            {!showOtpStep && (
               <Field
                 label="Password"
                 type="password"

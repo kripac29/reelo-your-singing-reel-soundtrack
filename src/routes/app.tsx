@@ -1,16 +1,28 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet, redirect } from "@tanstack/react-router";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { FloatingPlayer } from "@/components/FloatingPlayer";
 import { AudioEngine } from "@/components/AudioEngine";
 import { MobileNav } from "@/components/MobileNav";
 import logo from "@/assets/reelo-logo.png";
+import { getCurrentUser } from "@/lib/auth-store";
+import { useAuth } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/app")({
+  beforeLoad: async () => {
+    if (typeof window !== "undefined" && !(await getCurrentUser())) {
+      throw redirect({ to: "/login" });
+    }
+  },
   component: AppLayout,
 });
 
 function AppLayout() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return null;
+  if (!user) return <Navigate to="/login" />;
+
   return (
     <>
       <div className="flex">

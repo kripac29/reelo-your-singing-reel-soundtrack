@@ -13,6 +13,8 @@ import { Toaster } from "@/components/ui/sonner";
 
 import { ReelsProvider } from "@/lib/reels-store";
 import { PlayerProvider } from "@/lib/player-store";
+import { AuthProvider } from "@/lib/auth-store";
+import { useAuth } from "@/lib/auth-store";
 
 function NotFoundComponent() {
   return (
@@ -149,11 +151,21 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ReelsProvider>
-        <PlayerProvider>
-          <Outlet />
-        </PlayerProvider>
-      </ReelsProvider>
+      <AuthProvider>
+        <SessionProviders />
+      </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+function SessionProviders() {
+  const { user } = useAuth();
+
+  return (
+    <ReelsProvider key={user?.id ?? "anonymous"}>
+      <PlayerProvider>
+        <Outlet />
+      </PlayerProvider>
+    </ReelsProvider>
   );
 }

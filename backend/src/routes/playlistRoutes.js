@@ -1,15 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 const {
   createPlaylist,
   getMyPlaylists,
   deletePlaylist,
-} = require('../controllers/playlistController');
-const authMiddleware = require('../middleware/authMiddleware');
+} = require("../controllers/playlistController");
 
-router.post('/playlists', authMiddleware, createPlaylist);
-router.get('/playlists', authMiddleware, getMyPlaylists);
-router.delete('/playlists/:id', authMiddleware, deletePlaylist);
+const authMiddleware = require("../middleware/authMiddleware");
+
+router.post("/", authMiddleware, createPlaylist);
+router.get("/", authMiddleware, getMyPlaylists);
+router.delete("/:id", authMiddleware, deletePlaylist);
 
 module.exports = router;

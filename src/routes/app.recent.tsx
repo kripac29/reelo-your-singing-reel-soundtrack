@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { usePlayer } from "@/lib/player-store";
-import useSavedReels from "@/lib/saved-store";
+import { useReels } from "@/lib/reels-store";
 import { Play } from "lucide-react";
 import { getTrackCover } from "@/lib/reel-utils";
 import { ReelCover } from "@/components/ReelCover";
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/app/recent")({ component: Recent });
 
 function Recent() {
   const p = usePlayer();
-  const { saved } = useSavedReels();
+  const { reels: saved } = useReels();
 
   return (
     <div className="space-y-8">

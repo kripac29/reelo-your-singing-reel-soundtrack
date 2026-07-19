@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import { MusicCard } from "@/components/MusicCard";
-import useSavedReels from "@/lib/saved-store";
+import { useReels } from "@/lib/reels-store";
 import { usePlaylists } from "@/lib/playlist-store";
 import { getTrackCover } from "@/lib/reel-utils";
 
 export const Route = createFileRoute("/app/library")({ component: Library });
 
 function Library() {
-  const { saved } = useSavedReels();
+  const { reels: saved } = useReels();
   const { playlists } = usePlaylists();
 
   const folderSummaries = playlists.map((playlist) => {

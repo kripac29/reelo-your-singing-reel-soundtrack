@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MusicCard } from "@/components/MusicCard";
-import useSavedReels from "@/lib/saved-store";
+import { useReels } from "@/lib/reels-store";
 
 export const Route = createFileRoute("/app/favorites")({ component: Favorites });
 
 function Favorites() {
-  const { saved } = useSavedReels();
+  const { reels: saved } = useReels();
   const favs = saved.slice(0, 6);
 
   return (
