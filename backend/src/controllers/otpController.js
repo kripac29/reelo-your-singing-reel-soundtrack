@@ -36,12 +36,13 @@ const sendOTP = async (req, res) => {
     });
 
     // Remove any older OTPs for the same email before saving a new one.
-    await OTP.deleteMany({ email: normalizedEmail });
+    await OTP.deleteMany({ email: normalizedEmail, purpose: "signup" });
 
     // Save the OTP in MongoDB so it can be verified later.
     await OTP.create({
       email: normalizedEmail,
       otp,
+      purpose: "signup",
     });
 
     // Send the OTP to the user through Gmail SMTP when credentials are available.

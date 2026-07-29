@@ -2,13 +2,15 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const OTP = require("../models/OTP");
+const Reel = require("../models/Reel");
+const Playlist = require("../models/Playlist");
 
 const generateToken = (user) => {
   // Create a signed JWT with the authenticated user ID and email.
   return jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET || "reelo-dev-secret",
-    { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    { expiresIn: process.env.JWT_EXPIRES_IN || "7d" },
   );
 };
 
@@ -166,9 +168,64 @@ const logout = async (_req, res) => {
   return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password, new password and confirmation are required",
+      });
+    }
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: "Passwords do not match" });
+    }
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ success: false, message: "New password must be at least 8 characters long" });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    if (!(await bcrypt.compare(currentPassword, user.password))) {
+      return res.status(400).json({ success: false, message: "Current password is incorrect" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 12);
+    await user.save();
+    return res.status(200).json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    console.error("changePassword error:", error);
+    return res.status(500).json({ success: false, message: "Unable to change password" });
+  }
+};
+
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await Promise.all([Reel.deleteMany({ user: userId }), Playlist.deleteMany({ user: userId })]);
+    await User.findByIdAndDelete(userId);
+
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    return res.status(200).json({ success: true, message: "Account deleted successfully" });
+  } catch (error) {
+    console.error("deleteAccount error:", error);
+    return res.status(500).json({ success: false, message: "Unable to delete account" });
+  }
+};
+
 module.exports = {
   verifyOTP,
   login,
   getMe,
   logout,
+  changePassword,
+  deleteAccount,
 };
