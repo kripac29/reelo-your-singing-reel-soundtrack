@@ -50,7 +50,7 @@ const reelSchema = new mongoose.Schema(
 
     duration: {
       type: String,
-      default: "0:45",
+      default: "",
     },
 
     mood: {
@@ -60,12 +60,17 @@ const reelSchema = new mongoose.Schema(
 
     durationSeconds: {
       type: Number,
-      default: 45,
+      default: null,
     },
 
     savedAt: {
       type: String,
       default: "just now",
+    },
+
+    isFavorite: {
+      type: Boolean,
+      default: false,
     },
   },
   {

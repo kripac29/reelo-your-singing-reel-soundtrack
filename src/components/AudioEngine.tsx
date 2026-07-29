@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import { usePlayer } from "@/lib/player-store";
+import { useReels } from "@/lib/reels-store";
 
 export function AudioEngine() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const p = usePlayer();
+  const { updateDuration } = useReels();
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -57,6 +59,12 @@ export function AudioEngine() {
   return (
     <audio
       ref={audioRef}
+      onLoadedMetadata={() => {
+        const durationSeconds = audioRef.current?.duration;
+        if (p.current && durationSeconds && Number.isFinite(durationSeconds)) {
+          void updateDuration(p.current.id, durationSeconds).catch(() => {});
+        }
+      }}
       onTimeUpdate={handleTimeUpdate}
       onEnded={handleEnded}
       onError={() => {

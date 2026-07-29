@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useReels } from "@/lib/reels-store";
 import { usePlaylists } from "@/lib/playlist-store";
-import { Play, Shuffle, Heart, MoreHorizontal, GripVertical, Clock } from "lucide-react";
+import { Play, Shuffle, MoreHorizontal, GripVertical, Clock } from "lucide-react";
 import { usePlayer } from "@/lib/player-store";
 import { getTrackCover } from "@/lib/reel-utils";
 import { ReelCover } from "@/components/ReelCover";
+import { FavoriteButton } from "@/components/FavoriteButton";
+import { formatDuration, formatTotalDuration } from "@/lib/duration";
 
 export const Route = createFileRoute("/app/playlist/$id")({ component: PlaylistPage });
 
@@ -15,6 +17,11 @@ function PlaylistPage() {
   const { reels: saved } = useReels();
   const list = saved.filter((t) => t.folderId === id);
   const count = list.length;
+  const totalSeconds = list.reduce(
+    (total, reel) => total + (typeof reel.durationSeconds === "number" && Number.isFinite(reel.durationSeconds) && reel.durationSeconds > 0 ? reel.durationSeconds : 0),
+    0
+  );
+  const totalDuration = formatTotalDuration(totalSeconds);
   const p = usePlayer();
   const playlistCover = list.length > 0 ? getTrackCover(list[0]) : playlist?.cover ?? "";
   const title = playlist?.title ?? "Your playlist";
@@ -31,7 +38,7 @@ function PlaylistPage() {
             <span className="text-xs uppercase tracking-widest text-muted-foreground">Playlist</span>
             <h1 className="font-display text-4xl md:text-6xl font-bold mt-2 leading-none">{title}</h1>
             <p className="text-muted-foreground mt-3">{description}</p>
-            <div className="text-xs text-muted-foreground mt-2">{count} reels · ~38 min</div>
+            <div className="text-xs text-muted-foreground mt-2">{count} reels{totalDuration ? ` · ${totalDuration}` : ""}</div>
           </div>
         </div>
       </div>
@@ -41,18 +48,17 @@ function PlaylistPage() {
           <Play className="w-6 h-6 ml-0.5" />
         </button>
         <button onClick={p.toggleShuffle} className={`p-3 rounded-full glass hover:bg-white/10 ${p.shuffle ? "text-primary" : ""}`}><Shuffle className="w-5 h-5" /></button>
-        <button className="p-3 rounded-full glass hover:bg-white/10 text-muted-foreground hover:text-primary"><Heart className="w-5 h-5" /></button>
         <button className="p-3 rounded-full glass hover:bg-white/10 text-muted-foreground"><MoreHorizontal className="w-5 h-5" /></button>
       </div>
 
       <div className="glass rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-[24px_40px_1fr_1fr_auto] gap-4 px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground border-b border-white/5">
-          <span>#</span><span></span><span>Title</span><span className="hidden md:block">Mood</span><Clock className="w-4 h-4" />
+        <div className="grid grid-cols-[24px_40px_1fr_1fr_auto_auto] gap-4 px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground border-b border-white/5">
+          <span>#</span><span></span><span>Title</span><span className="hidden md:block">Mood</span><Clock className="w-4 h-4" /><span></span>
         </div>
         {list.map((t, i) => {
           const active = p.current?.id === t.id;
           return (
-            <div key={t.id} className={`grid grid-cols-[24px_40px_1fr_1fr_auto] gap-4 px-4 py-2.5 items-center group cursor-pointer transition ${active ? "bg-primary/10" : "hover:bg-white/5"}`} onClick={() => p.play(t, list)}>
+            <div key={t.id} className={`grid grid-cols-[24px_40px_1fr_1fr_auto_auto] gap-4 px-4 py-2.5 items-center group cursor-pointer transition ${active ? "bg-primary/10" : "hover:bg-white/5"}`} onClick={() => p.play(t, list)}>
               <div className="text-sm text-muted-foreground flex items-center">
                 <span className="group-hover:hidden">{i + 1}</span>
                 <Play className="w-3.5 h-3.5 hidden group-hover:block text-primary" />
@@ -65,8 +71,9 @@ function PlaylistPage() {
               <span className="hidden md:block text-xs text-muted-foreground">{t.mood}</span>
               <div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
                 <GripVertical className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
-                {t.duration}
+                {formatDuration(t.durationSeconds)}
               </div>
+              <FavoriteButton track={t} className="p-2 rounded-full hover:bg-white/10 text-muted-foreground hover:text-primary transition" />
             </div>
           );
         })}

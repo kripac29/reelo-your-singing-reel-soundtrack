@@ -4,6 +4,7 @@ import { useReels } from "@/lib/reels-store";
 import { Play } from "lucide-react";
 import { getTrackCover } from "@/lib/reel-utils";
 import { ReelCover } from "@/components/ReelCover";
+import { formatDuration } from "@/lib/duration";
 
 export const Route = createFileRoute("/app/recent")({ component: Recent });
 
@@ -33,7 +34,7 @@ function Recent() {
                 <div className="text-sm font-medium truncate group-hover:text-primary transition">{t.title}</div>
                 <div className="text-xs text-muted-foreground truncate">{t.artist} · {t.mood ?? "Saved reel"}</div>
               </div>
-              <span className="text-xs text-muted-foreground tabular-nums hidden sm:block">{t.duration}</span>
+              {formatDuration(t.durationSeconds) && <span className="text-xs text-muted-foreground tabular-nums hidden sm:block">{formatDuration(t.durationSeconds)}</span>}
               <div className="w-9 h-9 rounded-full gradient-brand grid place-items-center text-white opacity-0 group-hover:opacity-100 transition">
                 <Play className="w-4 h-4 ml-0.5" />
               </div>

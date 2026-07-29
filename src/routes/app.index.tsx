@@ -6,7 +6,8 @@ import { CreatorAvatar } from "@/components/CreatorAvatar";
 import { ReelCover } from "@/components/ReelCover";
 import { useReels } from "@/lib/reels-store";
 import { usePlaylists } from "@/lib/playlist-store";
-import { Instagram, Plus, Bookmark, Clock, Sparkles } from "lucide-react";
+import { useAuth } from "@/lib/auth-store";
+import { Instagram, Plus, Bookmark, Sparkles } from "lucide-react";
 import { getTrackCover, normalizeCreatorName } from "@/lib/reel-utils";
 
 export const Route = createFileRoute("/app/")({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/app/")({
 function Home() {
   const { reels: saved } = useReels();
   const { playlists } = usePlaylists();
+  const { user } = useAuth();
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const recent = saved.slice(0, 6);
@@ -30,7 +32,7 @@ function Home() {
       <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold">{greet} ✦</h1>
+            <h1 className="font-display text-3xl md:text-4xl font-bold">{greet}{user?.name ? `, ${user.name}` : ""} ✦</h1>
             <p className="text-muted-foreground mt-1">Your private scrapbook of singing reels — saved, sorted, always with you.</p>
           </div>
           <Link
@@ -42,11 +44,10 @@ function Home() {
           </Link>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Stat icon={<Bookmark className="w-4 h-4" />} value={totalSaved} label="reels saved" />
           <Stat icon={<Sparkles className="w-4 h-4" />} value={playlists.length} label="mood folders" />
           <Stat icon={<Instagram className="w-4 h-4" />} value={creators.length} label="creators bookmarked" />
-          <Stat icon={<Clock className="w-4 h-4" />} value={"4.2h"} label="listened this week" />
         </div>
       </motion.section>
 

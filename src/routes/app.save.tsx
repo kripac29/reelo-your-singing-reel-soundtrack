@@ -109,7 +109,6 @@ function SaveReel() {
                 folderId,
                 sourceUrl: url.trim(),
                 savedAt: "just now",
-                duration: "—",
                 mood: mood.trim(),
               };
               try {

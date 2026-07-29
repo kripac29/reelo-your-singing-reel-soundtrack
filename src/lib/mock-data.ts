@@ -13,7 +13,7 @@ export type Track = {
   artist: string; // creator handle
   subtitle?: string; // first emotional caption line
   cover: string;
-  duration: string;
+  duration?: string;
   mood?: string;
   savedAt?: string; // human label e.g. "2 days ago"
   sourceUrl?: string; // original instagram reel link
@@ -22,6 +22,7 @@ export type Track = {
   durationSeconds?: number; // duration in seconds from backend
   thumbnail?: string; // legacy thumbnail field
   thumbnailUrl?: string; // local backend-served thumbnail URL
+  isFavorite?: boolean;
 };
 
 export const covers = [cover1, cover2, cover3, cover4, cover5, cover6];

@@ -6,7 +6,7 @@ export const Route = createFileRoute("/app/favorites")({ component: Favorites })
 
 function Favorites() {
   const { reels: saved } = useReels();
-  const favs = saved.slice(0, 6);
+  const favs = saved.filter((reel) => reel.isFavorite);
 
   return (
     <div className="space-y-8">

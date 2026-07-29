@@ -20,8 +20,6 @@ function Import() {
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [newPlaylistDesc, setNewPlaylistDesc] = useState("");
   const [newPlaylistError, setNewPlaylistError] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const [pendingReel, setPendingReel] = useState<{
     sourceUrl: string;
     title: string;
@@ -93,32 +91,31 @@ function Import() {
   const saveToPlaylist = async () => {
     if (!pendingReel || !selectedPlaylistId) return;
 
-    setIsSaving(true);
-    setSaveError(null);
-    try {
-      await addReel({
-        folderId: selectedPlaylistId,
-        title: pendingReel.title,
-        artist: pendingReel.creator,
-        cover: pendingReel.thumbnailUrl ?? pendingReel.thumbnail ?? "",
-        audioUrl: pendingReel.audioUrl,
-        sourceUrl: pendingReel.sourceUrl,
-        duration: pendingReel.duration ? `${Math.floor(pendingReel.duration / 60)}:${String(Math.round(pendingReel.duration % 60)).padStart(2, "0")}` : "0:45",
-        durationSeconds: pendingReel.duration ?? undefined,
-        thumbnailUrl: pendingReel.thumbnailUrl ?? undefined,
-        thumbnail: pendingReel.thumbnail ?? undefined,
-        savedAt: "just now",
-      });
-      setIsModalOpen(false);
-      setPendingReel(null);
-      setUrl("");
-      toast.success("Saved to playlist", { description: `Added to ${selectedPlaylist?.title ?? "your playlist"}` });
-      navigate({ to: "/app/library" });
-    } catch (saveFailure) {
-      setSaveError(saveFailure instanceof Error ? saveFailure.message : "Unable to save reel");
-    } finally {
-      setIsSaving(false);
-    }
+    await addReel({
+      id: `reel_${Date.now()}`,
+      title: pendingReel.title,
+      artist: pendingReel.creator,
+      cover: pendingReel.thumbnailUrl || "",
+      duration: pendingReel.duration
+        ? `${Math.floor(pendingReel.duration / 60)}:${String(pendingReel.duration % 60).padStart(2, "0")}`
+        : "0:00",
+      mood: "",
+      savedAt: new Date().toISOString(),
+      sourceUrl: pendingReel.sourceUrl,
+      folderId: selectedPlaylistId,
+      audioUrl: pendingReel.audioUrl,
+      durationSeconds: pendingReel.duration ?? undefined,
+      thumbnailUrl: pendingReel.thumbnailUrl ?? undefined,
+      thumbnail: pendingReel.thumbnailUrl ?? undefined,
+    });
+
+    setIsModalOpen(false);
+    setPendingReel(null);
+    setUrl("");
+    toast.success("Saved to playlist", {
+      description: `Added to ${selectedPlaylist?.title ?? "your playlist"}`,
+    });
+    navigate({ to: "/app/library" });
   };
 
   return (
@@ -211,7 +208,6 @@ function Import() {
                 );
               })}
             </div>
-            {saveError && <div className="text-sm text-red-400">{saveError}</div>}
 
             <button
               type="button"
@@ -286,10 +282,10 @@ function Import() {
               <button
                 type="button"
                 onClick={saveToPlaylist}
-                disabled={!pendingReel || !selectedPlaylistId || isSaving}
+                disabled={!pendingReel || !selectedPlaylistId}
                 className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSaving ? "Saving..." : "Save to playlist"}
+                Save to playlist
               </button>
             </div>
           </div>

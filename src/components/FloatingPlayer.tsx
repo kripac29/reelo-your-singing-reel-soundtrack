@@ -1,14 +1,19 @@
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, Heart, ListMusic, Maximize2 } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ListMusic, Maximize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePlayer } from "@/lib/player-store";
 import { useState } from "react";
 import { getTrackCover } from "@/lib/reel-utils";
 import { ReelCover } from "@/components/ReelCover";
+import { FavoriteButton } from "@/components/FavoriteButton";
+import { useReels } from "@/lib/reels-store";
+import { formatDuration } from "@/lib/duration";
 
 export function FloatingPlayer() {
   const p = usePlayer();
+  const { reels } = useReels();
   const [showQueue, setShowQueue] = useState(false);
   if (!p.current) return null;
+  const current = reels.find((reel) => reel.id === p.current?.id) ?? p.current;
 
   return (
     <>
@@ -22,18 +27,16 @@ export function FloatingPlayer() {
           {/* Track */}
           <div className="flex items-center gap-3 min-w-0 flex-1 lg:flex-none lg:w-72">
             <div className="relative">
-              <ReelCover src={getTrackCover(p.current)} alt={p.current.title} className="w-12 h-12 lg:w-14 lg:h-14 rounded-xl" fallbackLabel="Now playing" />
+              <ReelCover src={getTrackCover(current)} alt={current.title} className="w-12 h-12 lg:w-14 lg:h-14 rounded-xl" fallbackLabel="Now playing" />
               {p.isPlaying && (
                 <div className="absolute inset-0 rounded-xl ring-2 ring-primary/60 animate-pulse" />
               )}
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-semibold truncate">{p.current.title}</div>
-              <div className="text-xs text-muted-foreground truncate">{p.current.artist}</div>
+              <div className="text-sm font-semibold truncate">{current.title}</div>
+              <div className="text-xs text-muted-foreground truncate">{current.artist}</div>
             </div>
-            <button className="ml-auto lg:ml-2 p-2 rounded-full hover:bg-white/5 text-muted-foreground hover:text-primary transition hidden sm:grid place-items-center">
-              <Heart className="w-4 h-4" />
-            </button>
+            <FavoriteButton track={current} className="ml-auto lg:ml-2 p-2 rounded-full hover:bg-white/5 text-muted-foreground hover:text-primary transition hidden sm:grid place-items-center" />
           </div>
 
           {/* Controls */}
@@ -59,7 +62,7 @@ export function FloatingPlayer() {
               </button>
             </div>
             <div className="w-full flex items-center gap-2 px-2">
-              <span className="text-[10px] text-muted-foreground tabular-nums">0:48</span>
+              <span className="text-[10px] text-muted-foreground tabular-nums">{formatDuration(((current.durationSeconds ?? 0) * p.progress) / 100) ?? "0:00"}</span>
               <div
                 className="flex-1 h-1 rounded-full bg-white/10 cursor-pointer overflow-hidden"
                 onClick={(e) => {
@@ -69,7 +72,7 @@ export function FloatingPlayer() {
               >
                 <div className="h-full gradient-brand rounded-full transition-all" style={{ width: `${p.progress}%` }} />
               </div>
-              <span className="text-[10px] text-muted-foreground tabular-nums">{p.current.duration}</span>
+              <span className="text-[10px] text-muted-foreground tabular-nums">{formatDuration(current.durationSeconds) ?? "—"}</span>
             </div>
           </div>
 
@@ -121,7 +124,7 @@ export function FloatingPlayer() {
                     <div className="text-sm truncate">{t.title}</div>
                     <div className="text-xs text-muted-foreground truncate">{t.artist}</div>
                   </div>
-                  <span className="text-xs text-muted-foreground tabular-nums">{t.duration}</span>
+                  <span className="text-xs text-muted-foreground tabular-nums">{formatDuration(t.durationSeconds) ?? "—"}</span>
                 </button>
               ))}
             </div>
