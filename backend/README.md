@@ -53,3 +53,8 @@ Response:
 - Local audio files are served from `/uploads/audio`.
 - The frontend should use the returned `audioUrl` for playback.
 - This design avoids direct Instagram CDN playback and CORS issues.
+- OTP email requires `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and
+  optionally `SMTP_FROM`. For Gmail, `SMTP_USER` must be a Gmail address and
+  `SMTP_PASS` must be a 16-character Google App Password, not the normal Gmail
+  password. Add the same variables in the Render service's Environment settings
+  and redeploy after saving them.

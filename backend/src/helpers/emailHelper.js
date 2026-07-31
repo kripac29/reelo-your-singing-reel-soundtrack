@@ -4,11 +4,18 @@ const nodemailer = require("nodemailer");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 const sanitizedPassword = String(process.env.SMTP_PASS || "").replace(/\s+/g, "");
+const smtpPort = Number(process.env.SMTP_PORT || 587);
+
+if (!Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
+  throw new Error("SMTP_PORT must be a valid port number");
+}
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: false,
+  port: smtpPort,
+  // SMTP port 465 uses TLS immediately; port 587 upgrades with STARTTLS.
+  secure: smtpPort === 465,
+  requireTLS: process.env.SMTP_REQUIRE_TLS === "true",
   auth: {
     user: process.env.SMTP_USER,
     pass: sanitizedPassword,
@@ -18,6 +25,10 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async ({ to, subject, html }) => {
   if (!process.env.SMTP_USER || !sanitizedPassword) {
     throw new Error("SMTP credentials are not configured");
+  }
+
+  if (!to) {
+    throw new Error("A recipient email address is required");
   }
 
   const mailOptions = {
