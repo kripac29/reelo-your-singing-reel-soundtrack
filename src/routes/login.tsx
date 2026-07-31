@@ -89,7 +89,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/auth/send-otp",
+        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/send-otp",
         {
           method: "POST",
           headers: {
@@ -133,7 +133,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/auth/verify-otp",
+        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-otp",
         {
           method: "POST",
           headers: {
@@ -180,7 +180,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/auth/forgot-password",
+        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/forgot-password",
         {
           method: "POST",
           headers: {
@@ -229,7 +229,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/auth/verify-reset-otp",
+        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-reset-otp",
         {
           method: "POST",
           headers: {
@@ -296,7 +296,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/auth/reset-password",
+        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/reset-password",
         {
           method: "POST",
           headers: {

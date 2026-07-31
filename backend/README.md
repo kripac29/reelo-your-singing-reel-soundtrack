@@ -41,7 +41,7 @@ Response:
   "success": true,
   "title": "...",
   "creator": "...",
-  "audioUrl": "http://localhost:5000/uploads/audio/xxxx.mp3",
+  "audioUrl": "http://https://reelo-your-singing-reel-soundtrack.onrender.com/uploads/audio/xxxx.mp3",
   "thumbnail": "...",
   "duration": 42,
   "folderId": "p1"

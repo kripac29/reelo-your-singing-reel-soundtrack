@@ -8,7 +8,7 @@ export type Playlist = {
   count: number;
 };
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api";
 
 function mapPlaylist(item: any): Playlist {
   return {
