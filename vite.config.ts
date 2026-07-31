@@ -1,17 +1,46 @@
-import { defineConfig } from "@Lovable.dev/vite-tanstack-config";
+import { defineConfig, type PluginOption } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import tsConfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
 import { reelImportDevPlugin } from "./vite/reel-import-dev-plugin";
 
-export default defineConfig({
-  tanstackStart: {
-    server: { entry: "server" },
-  },
-  vite: {
+export default defineConfig(async ({ command }) => {
+  const isVercel = !!process.env.VERCEL;
+  const buildOnlyPlugins: PluginOption[] = [];
+
+  if (command === "build" && !isVercel) {
+    try {
+      const { cloudflare } = await import("@cloudflare/vite-plugin");
+      buildOnlyPlugins.push(cloudflare({ viteEnvironment: { name: "ssr" } }));
+    } catch {
+      // Cloudflare plugin is optional (e.g. on Vercel) — Nitro handles the build.
+    }
+  }
+
+  return {
+    server: {
+      host: "::",
+      port: 8080,
+    },
     plugins: [
-      nitro({
-        preset: "vercel",
+      tailwindcss(),
+      tsConfigPaths({ projects: ["./tsconfig.json"] }),
+      ...buildOnlyPlugins,
+      tanstackStart({
+        server: { entry: "server" },
+        importProtection: {
+          behavior: "error",
+          client: {
+            files: ["**/server/**"],
+            specifiers: ["server-only"],
+          },
+        },
       }),
+      viteReact(),
+      ...(isVercel ? [nitro({ preset: "vercel" })] : []),
       reelImportDevPlugin(),
     ],
-  },
+  };
 });
