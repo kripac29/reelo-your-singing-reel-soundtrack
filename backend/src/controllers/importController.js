@@ -90,7 +90,7 @@ async function importReelAudio({ instagramUrl, folderId }) {
     const publicAudioPath = `/uploads/audio/${path.basename(finalFile)}`;
     const thumbnailFileName = `${uuidv4()}.jpg`;
     const thumbnailPath = path.join(THUMBNAIL_FOLDER, thumbnailFileName);
-    const baseUrl = process.env.BACKEND_BASE_URL || "http://https://reelo-your-singing-reel-soundtrack.onrender.com";
+    const baseUrl = process.env.BACKEND_BASE_URL || "https://reelo-your-singing-reel-soundtrack.onrender.com";
 
     let thumbnailUrl = null;
     if (metadata.thumbnail) {

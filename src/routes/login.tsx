@@ -89,7 +89,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/send-otp",
+        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/send-otp",
         {
           method: "POST",
           headers: {
@@ -133,7 +133,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-otp",
+        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-otp",
         {
           method: "POST",
           headers: {
@@ -180,7 +180,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/forgot-password",
+        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/forgot-password",
         {
           method: "POST",
           headers: {
@@ -229,7 +229,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-reset-otp",
+        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-reset-otp",
         {
           method: "POST",
           headers: {
@@ -296,7 +296,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setLoading(true);
 
       const response = await fetch(
-        "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/auth/reset-password",
+        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/reset-password",
         {
           method: "POST",
           headers: {

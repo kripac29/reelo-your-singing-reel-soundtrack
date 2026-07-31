@@ -15,7 +15,7 @@ export type ImportReelResponse = {
 };
 
 export async function importReelAudio(request: ImportReelRequest): Promise<ImportReelResponse> {
-  const resp = await fetch("http://https://reelo-your-singing-reel-soundtrack.onrender.com/api/import", {
+  const resp = await fetch("https://reelo-your-singing-reel-soundtrack.onrender.com/api/import", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),

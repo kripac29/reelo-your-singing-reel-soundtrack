@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Track } from "@/lib/mock-data";
 
-const API_BASE_URL = "http://https://reelo-your-singing-reel-soundtrack.onrender.com/api";
+const API_BASE_URL = "https://reelo-your-singing-reel-soundtrack.onrender.com/api";
 type NewReel = Omit<Track, "id"> & { id?: string };
 
 type ReelsState = {
