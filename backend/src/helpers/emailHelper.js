@@ -16,6 +16,10 @@ const transporter = nodemailer.createTransport({
   // SMTP port 465 uses TLS immediately; port 587 upgrades with STARTTLS.
   secure: smtpPort === 465,
   requireTLS: process.env.SMTP_REQUIRE_TLS === "true",
+  // Do not leave signup requests pending when an SMTP host is unreachable.
+  connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 10000),
+  greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 10000),
+  socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 15000),
   auth: {
     user: process.env.SMTP_USER,
     pass: sanitizedPassword,
@@ -38,7 +42,19 @@ const sendEmail = async ({ to, subject, html }) => {
     html,
   };
 
-  return transporter.sendMail(mailOptions);
+  try {
+    return await transporter.sendMail(mailOptions);
+  } catch (error) {
+    // Preserve the provider error code in server logs without returning SMTP
+    // details or credentials to a public API caller.
+    console.error("SMTP delivery failed", {
+      code: error.code,
+      command: error.command,
+      responseCode: error.responseCode,
+      message: error.message,
+    });
+    throw error;
+  }
 };
 
 module.exports = {

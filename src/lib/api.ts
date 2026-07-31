@@ -34,7 +34,13 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   if (token && !headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
 
   try {
-    return await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
+    const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
+    // An expired stored token is expected after a JWT expiry or a JWT_SECRET
+    // change on Render. Remove it so subsequent public requests stay clean.
+    if (response.status === 401 || response.status === 403) {
+      window.localStorage.removeItem("token");
+    }
+    return response;
   } catch {
     throw new ApiError("Unable to reach Reelo. Please try again.", 0);
   }
