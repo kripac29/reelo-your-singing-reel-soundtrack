@@ -7,9 +7,10 @@ import { nitro } from "nitro/vite";
 import { reelImportDevPlugin } from "./vite/reel-import-dev-plugin";
 
 export default defineConfig(async ({ command }) => {
+  const isVercel = !!process.env.VERCEL;
   const buildOnlyPlugins: PluginOption[] = [];
 
-  if (command === "build") {
+  if (command === "build" && !isVercel) {
     try {
       const { cloudflare } = await import("@cloudflare/vite-plugin");
       buildOnlyPlugins.push(cloudflare({ viteEnvironment: { name: "ssr" } }));
@@ -38,9 +39,7 @@ export default defineConfig(async ({ command }) => {
         },
       }),
       viteReact(),
-      nitro({
-        preset: "vercel",
-      }),
+      ...(isVercel ? [nitro({ preset: "vercel" })] : []),
       reelImportDevPlugin(),
     ],
   };
