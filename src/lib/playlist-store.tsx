@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch, getApiError } from "@/lib/api";
 
 export type Playlist = {
   id: string;
@@ -7,8 +8,6 @@ export type Playlist = {
   cover: string;
   count: number;
 };
-
-const API_BASE_URL = "https://reelo-your-singing-reel-soundtrack.onrender.com/api";
 
 function mapPlaylist(item: any): Playlist {
   return {
@@ -20,25 +19,11 @@ function mapPlaylist(item: any): Playlist {
   };
 }
 
-function getAuthHeaders() {
-  const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  return headers;
-}
-
 async function fetchPlaylistsFromApi(): Promise<Playlist[]> {
-  const response = await fetch(`${API_BASE_URL}/playlists`, {
-    headers: getAuthHeaders(),
-    credentials: "include",
-  });
+  const response = await apiFetch("/playlists");
 
   if (!response.ok) {
-    throw new Error("Unable to load playlists");
+    throw await getApiError(response, "Unable to load playlists");
   }
 
   const data = await response.json();
@@ -46,10 +31,8 @@ async function fetchPlaylistsFromApi(): Promise<Playlist[]> {
 }
 
 async function createPlaylistOnApi(playlist: Playlist): Promise<Playlist> {
-  const response = await fetch(`${API_BASE_URL}/playlists`, {
+  const response = await apiFetch("/playlists", {
     method: "POST",
-    headers: getAuthHeaders(),
-    credentials: "include",
     body: JSON.stringify({
       name: playlist.title,
       description: playlist.desc,
@@ -57,8 +40,7 @@ async function createPlaylistOnApi(playlist: Playlist): Promise<Playlist> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData?.message || "Unable to create playlist");
+    throw await getApiError(response, "Unable to create playlist");
   }
 
   const data = await response.json();
@@ -66,15 +48,12 @@ async function createPlaylistOnApi(playlist: Playlist): Promise<Playlist> {
 }
 
 async function deletePlaylistOnApi(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/playlists/${id}`, {
+  const response = await apiFetch(`/playlists/${encodeURIComponent(id)}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
-    credentials: "include",
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData?.message || "Unable to delete playlist");
+    throw await getApiError(response, "Unable to delete playlist");
   }
 }
 

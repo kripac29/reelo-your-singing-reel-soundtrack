@@ -3,7 +3,6 @@ const authRouter = require("./routes/auth");
 const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
 const importRouter = require("./routes/import");
 const connectDB = require("./config/db");
 const playlistRouter = require("./routes/playlistRoutes");
@@ -15,21 +14,27 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS for the frontend and parse incoming JSON payloads.
+const allowedOrigins = [
+  "http://localhost:8080",
+  "http://localhost:8081",
+  "https://reelo-your-singing-reel-soundtrack.vercel.app",
+  "https://reelo-your-singing-reel-soundtrack-git-main-kripa5.vercel.app",
+  ...(process.env.FRONTEND_ORIGINS || "").split(",").map((origin) => origin.trim()).filter(Boolean),
+];
+
+// This API uses Authorization: Bearer tokens, not cross-site cookies.
+// Allow explicit Vercel production/preview origins and local development origins.
 app.use(
   cors({
-    origin: [
-      "http://localhost:8080",
-      "http://localhost:8081",
-      "https://reelo-your-singing-reel-soundtrack.vercel.app",
-      "https://reelo-your-singing-reel-soundtrack-git-main-kripa5.vercel.app",
-    ],
-    credentials: true,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
+    credentials: false,
   })
 );
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 // Upload directories
 const audioUploadsDir = path.join(__dirname, "..", "uploads", "audio");
@@ -88,7 +93,7 @@ const startServer = async () => {
 
   app.listen(PORT, () => {
     console.log(
-      `🚀 Reelo audio backend listening on http://localhost:${PORT}`
+      `🚀 Reelo audio backend listening on port ${PORT}`
     );
   });
 };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-store";
+import { apiFetch, authHeaders } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,8 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-const API_BASE_URL = "https://reelo-your-singing-reel-soundtrack.onrender.com/api";
 
 export const Route = createFileRoute("/app/settings")({ component: Settings });
 
@@ -27,14 +26,6 @@ function Settings() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const initial = user?.name?.trim().charAt(0).toUpperCase() || "?";
-
-  const authHeaders = () => {
-    const token = window.localStorage.getItem("token");
-    return {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-  };
 
   const handleLogout = async () => {
     try {
@@ -54,10 +45,9 @@ function Settings() {
 
     setIsSavingPassword(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      const response = await apiFetch("/auth/change-password", {
         method: "POST",
         headers: authHeaders(),
-        credentials: "include",
         body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
       });
       const data = await response.json().catch(() => null);
@@ -78,10 +68,9 @@ function Settings() {
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/account`, {
+      const response = await apiFetch("/auth/account", {
         method: "DELETE",
         headers: authHeaders(),
-        credentials: "include",
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) throw new Error(data?.message || "Unable to delete account");

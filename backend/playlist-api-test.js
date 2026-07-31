@@ -74,16 +74,16 @@ app.use(express.json());
 app.use('/api', playlistRouter);
 
 async function request(path, options = {}) {
-  const serverUrl = `http://127.0.0.1:${server.address().port}${path}`;
+  const serverUrl = `http://[::1]:${server.address().port}${path}`;
   return fetch(serverUrl, options);
 }
 
 (async () => {
   try {
     const server = http.createServer(app);
-    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    await new Promise((resolve) => server.listen(0, '::1', resolve));
 
-    const unauthResponse = await fetch(`http://127.0.0.1:${server.address().port}/api/playlists`, {
+    const unauthResponse = await fetch(`http://[::1]:${server.address().port}/api/playlists`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'Unauthenticated' }),
@@ -91,7 +91,7 @@ async function request(path, options = {}) {
     assert.strictEqual(unauthResponse.status, 401);
     console.log('✓ unauthenticated request is blocked with 401');
 
-    const createResponse = await fetch(`http://127.0.0.1:${server.address().port}/api/playlists`, {
+    const createResponse = await fetch(`http://[::1]:${server.address().port}/api/playlists`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ async function request(path, options = {}) {
       description: 'belongs to user 1',
     });
 
-    const getResponse = await fetch(`http://127.0.0.1:${server.address().port}/api/playlists`, {
+    const getResponse = await fetch(`http://[::1]:${server.address().port}/api/playlists`, {
       headers: { Authorization: 'Bearer user-1' },
     });
     assert.strictEqual(getResponse.status, 200);
@@ -128,7 +128,7 @@ async function request(path, options = {}) {
     assert.ok(!playlistsResponse.playlists.some((playlist) => playlist._id === foreignPlaylist._id));
     console.log('✓ GET /api/playlists returns only the logged-in user\'s playlists');
 
-    const deleteResponse = await fetch(`http://127.0.0.1:${server.address().port}/api/playlists/${createdPlaylist.playlist._id}`, {
+    const deleteResponse = await fetch(`http://[::1]:${server.address().port}/api/playlists/${createdPlaylist.playlist._id}`, {
       method: 'DELETE',
       headers: { Authorization: 'Bearer user-1' },
     });
@@ -137,14 +137,14 @@ async function request(path, options = {}) {
     assert.strictEqual(deletedBody.playlist._id, createdPlaylist.playlist._id);
     console.log('✓ DELETE /api/playlists/:id deletes the logged-in user\'s playlist');
 
-    const foreignDeleteResponse = await fetch(`http://127.0.0.1:${server.address().port}/api/playlists/${foreignPlaylist._id}`, {
+    const foreignDeleteResponse = await fetch(`http://[::1]:${server.address().port}/api/playlists/${foreignPlaylist._id}`, {
       method: 'DELETE',
       headers: { Authorization: 'Bearer user-1' },
     });
     assert.strictEqual(foreignDeleteResponse.status, 404);
     console.log('✓ foreign playlist delete is denied for the logged-in user');
 
-    const finalGetResponse = await fetch(`http://127.0.0.1:${server.address().port}/api/playlists`, {
+    const finalGetResponse = await fetch(`http://[::1]:${server.address().port}/api/playlists`, {
       headers: { Authorization: 'Bearer user-1' },
     });
     const finalPlaylists = await finalGetResponse.json();

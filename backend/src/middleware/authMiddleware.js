@@ -3,8 +3,8 @@ const User = require("../models/User");
 
 const authMiddleware = async (req, res, next) => {
   try {
-    // Read the JWT from the HTTP-only cookie or Authorization header.
-    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
+    const authorization = req.headers.authorization;
+    const token = authorization?.startsWith("Bearer ") ? authorization.slice(7) : null;
 
     if (!token) {
       return res.status(401).json({

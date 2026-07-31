@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/signup")({
   beforeLoad: async () => {
-    if (typeof window !== "undefined" && await getCurrentUser()) throw redirect({ to: "/app" });
+    if (typeof window !== "undefined" && (await getCurrentUser())) throw redirect({ to: "/app" });
   },
   component: () => <AuthCard mode="signup" />,
 });

@@ -6,6 +6,7 @@ import { ArrowDownToLine, Instagram, Link2, Loader2 } from "lucide-react";
 import { usePlaylists } from "@/lib/playlist-store";
 import { usePlayer } from "@/lib/player-store";
 import { useReels } from "@/lib/reels-store";
+import { importReelAudio } from "@/lib/audioApi";
 import {
   Select,
   SelectContent,
@@ -70,41 +71,23 @@ function SaveReel() {
 
               setSaving(true);
               let resolvedAudio: string | undefined = audioUrl.trim() || undefined;
+              let importedReel: Awaited<ReturnType<typeof importReelAudio>> | null = null;
 
               if (!resolvedAudio) {
                 try {
-                  const res = await fetch("/api/reel-import", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ url: url.trim() }),
-                  });
-                  const data = (await res.json()) as { audioUrl?: string; error?: string; detail?: string };
-                  if (!res.ok) {
-                    toast.error(data.error ?? "Could not import audio", {
-                      description: data.detail?.slice(0, 400),
-                    });
-                    setSaving(false);
-                    return;
-                  }
-                  if (!data.audioUrl) {
-                    toast.error("Import returned no audio URL.");
-                    setSaving(false);
-                    return;
-                  }
-                  resolvedAudio = data.audioUrl;
-                } catch {
-                  toast.error("Import failed (network or server).", {
-                    description: "Run `npm run dev` from the project root, restart the terminal after installing yt-dlp/ffmpeg, then try again.",
-                  });
+                  importedReel = await importReelAudio({ instagramUrl: url.trim(), folderId });
+                  resolvedAudio = importedReel.audioUrl;
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Import failed. Please try again.");
                   setSaving(false);
                   return;
                 }
               }
 
               const newReel = {
-                title: "Saved Instagram reel",
-                artist: "Creator",
-                cover: playlists.find((p) => p.id === folderId)?.cover ?? playlists[0]?.cover ?? "",
+                title: importedReel?.title ?? "Saved Instagram reel",
+                artist: importedReel?.creator ?? "Creator",
+                cover: importedReel?.thumbnailUrl ?? importedReel?.thumbnail ?? playlists.find((p) => p.id === folderId)?.cover ?? playlists[0]?.cover ?? "",
                 audioUrl: resolvedAudio,
                 folderId,
                 sourceUrl: url.trim(),

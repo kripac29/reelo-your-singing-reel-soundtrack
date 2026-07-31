@@ -45,8 +45,7 @@ const sendOTP = async (req, res) => {
       purpose: "signup",
     });
 
-    // Send the OTP to the user through Gmail SMTP when credentials are available.
-    // If SMTP is not configured yet, the OTP is still saved in MongoDB and printed to the console for local testing.
+    // Never expose OTPs in API responses, especially in production.
     try {
       await sendEmail({
         to: normalizedEmail,
@@ -67,13 +66,11 @@ const sendOTP = async (req, res) => {
         email: normalizedEmail,
       });
     } catch (mailError) {
-      console.warn("SMTP unavailable, OTP stored for local testing:", otp);
-
-      return res.status(200).json({
-        success: true,
-        message: "OTP generated and stored. Configure SMTP to send emails.",
-        email: normalizedEmail,
-        otp,
+      console.error("Unable to send signup OTP:", mailError.message);
+      await OTP.deleteMany({ email: normalizedEmail, purpose: "signup" });
+      return res.status(503).json({
+        success: false,
+        message: "Unable to send verification code. Please try again later.",
       });
     }
   } catch (error) {

@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-
-const API_BASE_URL = "https://reelo-your-singing-reel-soundtrack.onrender.com/api";
+import { apiFetch, getApiError } from "@/lib/api";
 
 export type AuthUser = {
   id: string;
@@ -19,31 +18,22 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-function headers(): Record<string, string> {
-  const token = typeof window === "undefined" ? null : window.localStorage.getItem("token");
-  return { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
-}
-
-function errorMessage(payload: unknown, fallback: string) {
-  return typeof payload === "object" && payload !== null && "message" in payload && typeof payload.message === "string"
-    ? payload.message
-    : fallback;
-}
-
 export function clearStoredSession() {
   if (typeof window !== "undefined") window.localStorage.removeItem("token");
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
   if (typeof window === "undefined") return null;
-  const response = await fetch(`${API_BASE_URL}/auth/me`, { headers: headers(), credentials: "include" });
-  if (!response.ok) {
-    clearStoredSession();
+  try {
+    const response = await apiFetch("/auth/me");
+    if (response.status === 401 || response.status === 403) clearStoredSession();
+    if (!response.ok) return null;
+    const data = await response.json().catch(() => null);
+    return data?.user ?? null;
+  } catch {
+    // A Render cold start or temporary network failure must not crash route guards.
     return null;
   }
-
-  const data = await response.json().catch(() => null);
-  return data?.user ?? null;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -61,14 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refreshSession]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await apiFetch("/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(errorMessage(data, "Unable to sign in"));
+    if (!response.ok) {
+      const message = typeof data?.message === "string" ? data.message : "Unable to sign in";
+      throw new Error(message);
+    }
     if (!data?.token || !data?.user) throw new Error("Login did not return a valid session");
 
     window.localStorage.setItem("token", data.token);
@@ -77,9 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/logout`, { method: "POST", headers: headers(), credentials: "include" });
-      const data = await response.json().catch(() => null);
-      if (!response.ok) throw new Error(errorMessage(data, "Unable to log out"));
+      const response = await apiFetch("/auth/logout", { method: "POST" });
+      if (!response.ok) throw await getApiError(response, "Unable to log out");
     } finally {
       clearStoredSession();
       setUser(null);

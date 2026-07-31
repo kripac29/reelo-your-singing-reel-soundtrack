@@ -9,6 +9,7 @@ import logo from "@/assets/reelo-logo.png";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { getCurrentUser, useAuth } from "@/lib/auth-store";
+import { apiFetch } from "@/lib/api";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
@@ -88,23 +89,15 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/send-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-          }),
-        },
-      );
+      const response = await apiFetch("/auth/send-otp", {
+        method: "POST",
+        body: JSON.stringify({ email: email.trim() }),
+      });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        toast.error(data.message || "Failed to send OTP");
+        toast.error(data?.message || "Failed to send OTP");
         return;
       }
 
@@ -114,7 +107,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       toast.success(
         resend
           ? "OTP sent again"
-          : data.message || "OTP sent successfully",
+          : data?.message || "OTP sent successfully",
       );
     } catch {
       toast.error("Unable to connect to the server");
@@ -132,26 +125,15 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: name.trim(),
-            email: email.trim(),
-            password,
-            otp,
-          }),
-        },
-      );
+      const response = await apiFetch("/auth/verify-otp", {
+        method: "POST",
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password, otp }),
+      });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        toast.error(data.message || "OTP verification failed");
+        toast.error(data?.message || "OTP verification failed");
         return;
       }
 
@@ -179,24 +161,16 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-          }),
-        },
-      );
+      const response = await apiFetch("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email: email.trim() }),
+      });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
         toast.error(
-          data.message || "Unable to send verification code",
+          data?.message || "Unable to send verification code",
         );
         return;
       }
@@ -205,7 +179,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
       setForgotStep("otp");
 
       toast.success(
-        data.message || "Verification code sent",
+        data?.message || "Verification code sent",
       );
     } catch {
       toast.error("Unable to connect to the server");
@@ -228,28 +202,19 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/verify-reset-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            otp: resetOtp,
-          }),
-        },
-      );
+      const response = await apiFetch("/auth/verify-reset-otp", {
+        method: "POST",
+        body: JSON.stringify({ email: email.trim(), otp: resetOtp }),
+      });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        toast.error(data.message || "Invalid or expired code");
+        toast.error(data?.message || "Invalid or expired code");
         return;
       }
 
-      if (!data.resetToken) {
+      if (!data?.resetToken) {
         toast.error("Reset authorization was not returned");
         return;
       }
@@ -295,26 +260,15 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "https://reelo-your-singing-reel-soundtrack.onrender.comreelo-your-singing-reel-soundtrack.onrender.com/api/auth/reset-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            resetToken,
-            newPassword,
-            confirmPassword,
-          }),
-        },
-      );
+      const response = await apiFetch("/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ email: email.trim(), resetToken, newPassword, confirmPassword }),
+      });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        toast.error(data.message || "Unable to reset password");
+        toast.error(data?.message || "Unable to reset password");
         return;
       }
 

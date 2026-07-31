@@ -41,6 +41,7 @@ const verifyOTP = async (req, res) => {
     const otpRecord = await OTP.findOne({
       email: normalizedEmail,
       otp,
+      purpose: "signup",
     }).sort({ createdAt: -1 });
 
     if (!otpRecord) {
@@ -115,13 +116,6 @@ const login = async (req, res) => {
 
     const token = generateToken(user);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -160,11 +154,6 @@ const getMe = async (req, res) => {
 };
 
 const logout = async (_req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-  });
   return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
@@ -209,11 +198,6 @@ const deleteAccount = async (req, res) => {
     await Promise.all([Reel.deleteMany({ user: userId }), Playlist.deleteMany({ user: userId })]);
     await User.findByIdAndDelete(userId);
 
-    res.clearCookie("token", {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
     return res.status(200).json({ success: true, message: "Account deleted successfully" });
   } catch (error) {
     console.error("deleteAccount error:", error);

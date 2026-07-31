@@ -30,10 +30,10 @@ function PlaylistPage() {
   return (
     <div className="space-y-8">
       <div className="relative -mx-4 lg:-mx-8 -mt-6 px-4 lg:px-8 pt-10 pb-8 overflow-hidden">
-        <ReelCover src={playlistCover} alt={playlist.title} className="absolute inset-0 w-full h-full" fallbackLabel="Playlist cover" />
+        <ReelCover src={playlistCover} alt={title} className="absolute inset-0 w-full h-full" fallbackLabel="Playlist cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
         <div className="relative flex flex-col md:flex-row gap-6 items-end">
-          <ReelCover src={playlistCover} alt={playlist.title} className="w-44 h-44 md:w-56 md:h-56 rounded-2xl shadow-[0_30px_80px_-20px_oklch(0_0_0/0.7)]" fallbackLabel="Playlist cover" />
+          <ReelCover src={playlistCover} alt={title} className="w-44 h-44 md:w-56 md:h-56 rounded-2xl shadow-[0_30px_80px_-20px_oklch(0_0_0/0.7)]" fallbackLabel="Playlist cover" />
           <div className="min-w-0">
             <span className="text-xs uppercase tracking-widest text-muted-foreground">Playlist</span>
             <h1 className="font-display text-4xl md:text-6xl font-bold mt-2 leading-none">{title}</h1>

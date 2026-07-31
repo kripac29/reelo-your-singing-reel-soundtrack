@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Track } from "@/lib/mock-data";
+import { apiFetch, getApiError, getStoredToken } from "@/lib/api";
 
-const API_BASE_URL = "https://reelo-your-singing-reel-soundtrack.onrender.com/api";
 type NewReel = Omit<Track, "id"> & { id?: string };
 
 type ReelsState = {
@@ -15,17 +15,6 @@ type ReelsState = {
 };
 
 const Ctx = createContext<ReelsState | null>(null);
-
-function getHeaders(): Record<string, string> {
-  const token = typeof window === "undefined" ? null : window.localStorage.getItem("token");
-  return { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
-}
-
-function messageFrom(payload: unknown, fallback: string) {
-  return typeof payload === "object" && payload !== null && "message" in payload && typeof payload.message === "string"
-    ? payload.message
-    : fallback;
-}
 
 function mapReel(reel: any): Track {
   return {
@@ -51,16 +40,16 @@ export function ReelsProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const reloadReels = useCallback(async () => {
-    const token = typeof window === "undefined" ? null : window.localStorage.getItem("token");
+    const token = getStoredToken();
     if (!token) {
       setReels([]);
       setError(null);
       return;
     }
 
-    const response = await fetch(`${API_BASE_URL}/reels`, { headers: getHeaders(), credentials: "include" });
+    const response = await apiFetch("/reels");
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(messageFrom(data, "Unable to load saved reels"));
+    if (!response.ok) throw new Error(typeof data?.message === "string" ? data.message : "Unable to load saved reels");
 
     setReels(Array.isArray(data?.reels) ? data.reels.map(mapReel) : []);
     setError(null);
@@ -73,15 +62,13 @@ export function ReelsProvider({ children }: { children: ReactNode }) {
   }, [reloadReels]);
 
   const addReel = useCallback(async (reel: NewReel) => {
-    const response = await fetch(`${API_BASE_URL}/reels`, {
+    const response = await apiFetch("/reels", {
       method: "POST",
-      headers: getHeaders(),
-      credentials: "include",
       body: JSON.stringify(reel),
     });
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-      const message = messageFrom(data, "Unable to save reel");
+      const message = typeof data?.message === "string" ? data.message : "Unable to save reel";
       setError(message);
       throw new Error(message);
     }
@@ -93,9 +80,8 @@ export function ReelsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeReel = useCallback(async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/reels/${id}`, { method: "DELETE", headers: getHeaders(), credentials: "include" });
-    const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(messageFrom(data, "Unable to delete reel"));
+    const response = await apiFetch(`/reels/${encodeURIComponent(id)}`, { method: "DELETE" });
+    if (!response.ok) throw await getApiError(response, "Unable to delete reel");
     setReels((previous) => previous.filter((reel) => reel.id !== id));
   }, []);
 
@@ -103,15 +89,13 @@ export function ReelsProvider({ children }: { children: ReactNode }) {
     const reel = reels.find((item) => item.id === id);
     if (!reel) throw new Error("Reel not found");
 
-    const response = await fetch(`${API_BASE_URL}/reels/${id}/favorite`, {
+    const response = await apiFetch(`/reels/${encodeURIComponent(id)}/favorite`, {
       method: "PATCH",
-      headers: getHeaders(),
-      credentials: "include",
       body: JSON.stringify({ isFavorite: !reel.isFavorite }),
     });
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-      const message = messageFrom(data, "Unable to update favorite");
+      const message = typeof data?.message === "string" ? data.message : "Unable to update favorite";
       setError(message);
       throw new Error(message);
     }
@@ -126,15 +110,13 @@ export function ReelsProvider({ children }: { children: ReactNode }) {
     const reel = reels.find((item) => item.id === id);
     if (!reel || reel.durationSeconds === roundedDuration) return;
 
-    const response = await fetch(`${API_BASE_URL}/reels/${id}/duration`, {
+    const response = await apiFetch(`/reels/${encodeURIComponent(id)}/duration`, {
       method: "PATCH",
-      headers: getHeaders(),
-      credentials: "include",
       body: JSON.stringify({ durationSeconds: roundedDuration }),
     });
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-      const message = messageFrom(data, "Unable to update duration");
+      const message = typeof data?.message === "string" ? data.message : "Unable to update duration";
       setError(message);
       throw new Error(message);
     }

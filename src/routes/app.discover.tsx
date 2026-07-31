@@ -91,31 +91,35 @@ function Import() {
   const saveToPlaylist = async () => {
     if (!pendingReel || !selectedPlaylistId) return;
 
-    await addReel({
-      id: `reel_${Date.now()}`,
-      title: pendingReel.title,
-      artist: pendingReel.creator,
-      cover: pendingReel.thumbnailUrl || "",
-      duration: pendingReel.duration
-        ? `${Math.floor(pendingReel.duration / 60)}:${String(pendingReel.duration % 60).padStart(2, "0")}`
-        : "0:00",
-      mood: "",
-      savedAt: new Date().toISOString(),
-      sourceUrl: pendingReel.sourceUrl,
-      folderId: selectedPlaylistId,
-      audioUrl: pendingReel.audioUrl,
-      durationSeconds: pendingReel.duration ?? undefined,
-      thumbnailUrl: pendingReel.thumbnailUrl ?? undefined,
-      thumbnail: pendingReel.thumbnailUrl ?? undefined,
-    });
+    try {
+      await addReel({
+        id: `reel_${Date.now()}`,
+        title: pendingReel.title,
+        artist: pendingReel.creator,
+        cover: pendingReel.thumbnailUrl || "",
+        duration: pendingReel.duration
+          ? `${Math.floor(pendingReel.duration / 60)}:${String(pendingReel.duration % 60).padStart(2, "0")}`
+          : "0:00",
+        mood: "",
+        savedAt: new Date().toISOString(),
+        sourceUrl: pendingReel.sourceUrl,
+        folderId: selectedPlaylistId,
+        audioUrl: pendingReel.audioUrl,
+        durationSeconds: pendingReel.duration ?? undefined,
+        thumbnailUrl: pendingReel.thumbnailUrl ?? undefined,
+        thumbnail: pendingReel.thumbnailUrl ?? undefined,
+      });
 
-    setIsModalOpen(false);
-    setPendingReel(null);
-    setUrl("");
-    toast.success("Saved to playlist", {
-      description: `Added to ${selectedPlaylist?.title ?? "your playlist"}`,
-    });
-    navigate({ to: "/app/library" });
+      setIsModalOpen(false);
+      setPendingReel(null);
+      setUrl("");
+      toast.success("Saved to playlist", {
+        description: `Added to ${selectedPlaylist?.title ?? "your playlist"}`,
+      });
+      navigate({ to: "/app/library" });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to save reel");
+    }
   };
 
   return (

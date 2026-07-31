@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: async () => {
+    // getCurrentUser handles 401/403/5xx/network failures and never lets them escape the guard.
     if (typeof window !== "undefined" && !(await getCurrentUser())) {
       throw redirect({ to: "/login" });
     }

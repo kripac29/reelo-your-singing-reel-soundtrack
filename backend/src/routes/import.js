@@ -1,9 +1,10 @@
 const express = require("express");
 const { importReelAudio } = require("../controllers/importController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   const { instagramUrl, folderId } = req.body;
 
   if (!instagramUrl || typeof instagramUrl !== "string") {
