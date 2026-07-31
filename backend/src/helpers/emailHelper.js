@@ -9,17 +9,23 @@ const smtpPort = Number(process.env.SMTP_PORT || 587);
 if (!Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
   throw new Error("SMTP_PORT must be a valid port number");
 }
-
+const dns = require("dns");
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: smtpPort,
-  // SMTP port 465 uses TLS immediately; port 587 upgrades with STARTTLS.
+
   secure: smtpPort === 465,
   requireTLS: process.env.SMTP_REQUIRE_TLS === "true",
-  // Do not leave signup requests pending when an SMTP host is unreachable.
+
+  // ⭐ Force IPv4
+  family: 4,
+  dnsLookup: (hostname, options, callback) =>
+    dns.lookup(hostname, { family: 4 }, callback),
+
   connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 10000),
   greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 10000),
   socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 15000),
+
   auth: {
     user: process.env.SMTP_USER,
     pass: sanitizedPassword,
