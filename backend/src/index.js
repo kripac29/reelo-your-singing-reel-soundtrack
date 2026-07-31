@@ -21,6 +21,8 @@ app.use(
     origin: [
       "http://localhost:8080",
       "http://localhost:8081",
+      "https://reelo-your-singing-reel-soundtrack.vercel.app",
+      "https://reelo-your-singing-reel-soundtrack-git-main-kripa5.vercel.app",
     ],
     credentials: true,
   })
