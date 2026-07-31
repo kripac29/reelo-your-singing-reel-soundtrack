@@ -5,7 +5,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { useState } from "react";
-import { logoDataUri } from "@/lib/image-assets";
+import logo from "@/assets/reelo-logo.png";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { getCurrentUser, useAuth } from "@/lib/auth-store";
@@ -658,7 +658,7 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
 
         <div className="relative text-center space-y-6">
           <img
-            src={logoDataUri}
+            src={logo}
             alt=""
             className="w-32 h-32 mx-auto rounded-3xl float-slow glow"
           />
@@ -682,7 +682,7 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-2 mb-6 lg:hidden"
           >
             <img
-              src={logoDataUri}
+              src={logo}
               alt=""
               className="w-8 h-8 rounded"
             />

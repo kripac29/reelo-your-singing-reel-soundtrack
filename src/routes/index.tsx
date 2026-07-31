@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Bookmark, ListMusic, Sparkles, Headphones, Play, ArrowRight, Chrome, Heart, Wand2 } from "lucide-react";
-import { artistUrls, coverUrls, logoDataUri } from "@/lib/image-assets";
+import { artistUrls, coverUrls } from "@/lib/image-assets";
+import logo from "@/assets/reelo-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,7 +23,7 @@ function Landing() {
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/40 border-b border-white/5">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logoDataUri} alt="Reelo" className="w-9 h-9 rounded-lg" />
+            <img src={logo} alt="Reelo" className="w-9 h-9 rounded-lg" />
             <span className="font-display font-bold text-xl text-gradient">Reelo</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
@@ -185,7 +186,7 @@ function Landing() {
       <footer className="border-t border-white/5 mt-10">
         <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <img src={logoDataUri} alt="" className="w-6 h-6 rounded" />
+            <img src={logo} alt="Reelo" className="w-6 h-6 rounded" />
             <span>© 2026 Reelo. Made for singers and listeners.</span>
           </div>
           <div className="flex gap-6">
