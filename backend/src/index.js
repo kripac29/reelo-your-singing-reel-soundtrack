@@ -14,16 +14,7 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = [
-  "http://localhost:8080",
-  "http://localhost:8081",
-  "https://reelo-your-singing-reel-soundtrack.vercel.app",
-  "https://reelo-your-singing-reel-soundtrack-git-main-kripa5.vercel.app",
-  ...(process.env.FRONTEND_ORIGINS || "").split(",").map((origin) => origin.trim()).filter(Boolean),
-];
 
-// This API uses Authorization: Bearer tokens, not cross-site cookies.
-// Allow explicit Vercel production/preview origins and local development origins.
 const allowedOrigins = [
   "http://localhost:8080",
   "http://localhost:8081",
