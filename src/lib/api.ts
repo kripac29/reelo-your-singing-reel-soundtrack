@@ -23,6 +23,7 @@ export function authHeaders(): Record<string, string> {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
+// trigger redeploy
 
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
