@@ -24,10 +24,46 @@ const allowedOrigins = [
 
 // This API uses Authorization: Bearer tokens, not cross-site cookies.
 // Allow explicit Vercel production/preview origins and local development origins.
+const allowedOrigins = [
+  "http://localhost:8080",
+  "http://localhost:8081",
+  "https://reelo-your-singing-reel-soundtrack.vercel.app",
+  ...(process.env.FRONTEND_ORIGINS || "")
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean),
+];
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      // Allow requests without an Origin (Postman, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      // Allow localhost
+      if (
+        origin === "http://localhost:8080" ||
+        origin === "http://localhost:8081"
+      ) {
+        return callback(null, true);
+      }
+
+      // Allow your production Vercel domain
+      if (origin === "https://reelo-your-singing-reel-soundtrack.vercel.app") {
+        return callback(null, true);
+      }
+
+      // Allow ALL Vercel preview deployments
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      // Allow any additional origins from env variable
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.error("Blocked CORS origin:", origin);
       return callback(new Error("Origin is not allowed by CORS"));
     },
     credentials: false,
