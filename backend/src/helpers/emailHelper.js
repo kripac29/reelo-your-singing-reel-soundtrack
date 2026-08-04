@@ -1,64 +1,42 @@
 ﻿const path = require("path");
-const nodemailer = require("nodemailer");
+const SibApiV3Sdk = require("@getbrevo/brevo");
 
-require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
-
-const sanitizedPassword = String(process.env.SMTP_PASS || "").replace(/\s+/g, "");
-const smtpPort = Number(process.env.SMTP_PORT || 587);
-
-if (!Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
-  throw new Error("SMTP_PORT must be a valid port number");
-}
-const dns = require("dns");
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: smtpPort,
-
-  secure: smtpPort === 465,
-  requireTLS: process.env.SMTP_REQUIRE_TLS === "true",
-
-  // ⭐ Force IPv4
-  family: 4,
-  dnsLookup: (hostname, options, callback) =>
-    dns.lookup(hostname, { family: 4 }, callback),
-
-  connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 10000),
-  greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 10000),
-  socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 15000),
-
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: sanitizedPassword,
-  },
+require("dotenv").config({
+  path: path.resolve(__dirname, "../../.env"),
 });
 
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+apiInstance.setApiKey(
+  SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
+
 const sendEmail = async ({ to, subject, html }) => {
-  if (!process.env.SMTP_USER || !sanitizedPassword) {
-    throw new Error("SMTP credentials are not configured");
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error("BREVO_API_KEY is missing");
   }
 
   if (!to) {
-    throw new Error("A recipient email address is required");
+    throw new Error("Recipient email is required");
   }
 
-  const mailOptions = {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to,
-    subject,
-    html,
-  };
-
   try {
-    return await transporter.sendMail(mailOptions);
-  } catch (error) {
-    // Preserve the provider error code in server logs without returning SMTP
-    // details or credentials to a public API caller.
-    console.error("SMTP delivery failed", {
-      code: error.code,
-      command: error.command,
-      responseCode: error.responseCode,
-      message: error.message,
+    return await apiInstance.sendTransacEmail({
+      sender: {
+        email: process.env.BREVO_SENDER_EMAIL,
+        name: process.env.BREVO_SENDER_NAME || "Reelo",
+      },
+      to: [
+        {
+          email: to,
+        },
+      ],
+      subject,
+      htmlContent: html,
     });
+  } catch (error) {
+    console.error("Brevo email failed:", error);
     throw error;
   }
 };
