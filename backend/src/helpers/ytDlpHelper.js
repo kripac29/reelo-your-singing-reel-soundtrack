@@ -1,6 +1,11 @@
 ﻿const path = require("path");
 const { spawn } = require("child_process");
 
+// Prefer audio-only streams, but accept a muxed stream when that is all the
+// reel exposes. The fallback is filtered to formats with an audio codec, so a
+// video-only rendition can never be selected.
+const AUDIO_FORMAT_SELECTOR = "bestaudio/best*[acodec!=none]";
+
 function runYtdlp(args) {
   return new Promise((resolve, reject) => {
     const ytdlp = spawn("yt-dlp", args, { shell: false });
@@ -50,7 +55,7 @@ function buildYtdlpArgs(instagramUrl, outputTemplate) {
     instagramUrl,
     "--no-playlist",
     "-f",
-    "best",
+    AUDIO_FORMAT_SELECTOR,
     "-o",
     outputTemplate,
     "--write-thumbnail",
