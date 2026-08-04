@@ -50,7 +50,7 @@ function buildYtdlpArgs(instagramUrl, outputTemplate) {
     instagramUrl,
     "--no-playlist",
     "-f",
-    "bestaudio",
+    "best",
     "-o",
     outputTemplate,
     "--write-thumbnail",
@@ -83,13 +83,13 @@ async function downloadAudioFromInstagram({ instagramUrl, outputTemplate }) {
     const message = String(error.message || "").toLowerCase();
     if (args.includes("--cookies-from-browser") && message.includes("could not copy chrome cookie database")) {
       throw new Error(
-        "Instagram import failed because browser cookie extraction is unavailable. Set YT_DLP_USE_BROWSER_COOKIES=false or provide a cookies file with INSTAGRAM_COOKIES_PATH." 
+        "Instagram import failed because browser cookie extraction is unavailable. Set YT_DLP_USE_BROWSER_COOKIES=false or provide a cookies file with INSTAGRAM_COOKIES_PATH."
       );
     }
 
     if (message.includes("instagram sent an empty media response")) {
       throw new Error(
-        "Instagram import failed because the reel is not accessible without login. Use a public reel URL or provide cookies via INSTAGRAM_COOKIES_PATH." 
+        "Instagram import failed because the reel is not accessible without login. Use a public reel URL or provide cookies via INSTAGRAM_COOKIES_PATH."
       );
     }
 
