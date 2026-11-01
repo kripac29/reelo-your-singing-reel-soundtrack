@@ -99,12 +99,17 @@ app.use(
 );
 
 // Existing import flow remains unchanged.
+app.use("/import", importRouter);
 app.use("/api/import", importRouter);
 
 // Authentication routes for OTP sign-up and login.
-app.use("/api/auth", authRouter);
 app.use("/auth", authRouter);
+app.use("/api/auth", authRouter);
+
+app.use("/playlists", playlistRouter);
 app.use("/api/playlists", playlistRouter);
+
+app.use("/reels", reelRouter);
 app.use("/api/reels", reelRouter);
 
 // 404 handler
