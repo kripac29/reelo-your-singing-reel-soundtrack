@@ -103,6 +103,7 @@ app.use("/api/import", importRouter);
 
 // Authentication routes for OTP sign-up and login.
 app.use("/api/auth", authRouter);
+app.use("/auth", authRouter);
 app.use("/api/playlists", playlistRouter);
 app.use("/api/reels", reelRouter);
 
